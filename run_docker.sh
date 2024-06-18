@@ -1,8 +1,8 @@
 #!/bin/bash
 
 port_num="1"
-CONTAINER_NAME="webrtc_python"
-IMAGE_NAME="webrtc_python"
+CONTAINER_NAME="geon_webrtc_python"
+IMAGE_NAME="hub.inbic.duckdns.org/ai-dev/python_object_detection_server"
 TAG="0.1"
 
 webrtc_python_path=$(pwd)
@@ -13,7 +13,8 @@ docker run \
     -it \
     -p ${port_num}2000:7000 \
     -p ${port_num}2888:8888 \
-    -p ${port_num}2444:8444 \
+    -p ${port_num}8444:8444 \
+    -p ${port_num}8555:8555 \
     -p ${port_num}4000:9000 \
     -p ${port_num}3000:8000 \
     --name ${CONTAINER_NAME} \

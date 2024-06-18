@@ -13,12 +13,15 @@ class ConfigManager:
                 'NAME' : str,
                 'HEIGHT' : int,
                 'WIDTH' : int,
+                'GPU' : int,
                 'FPS' : float,
                 'LOG_FILE_PATH': str,
                 'LOG_FILE_NAME': str,
                 'LOG_LEVEL': str,
-                'STREAM_ADDRESS' : str,
                 'CODEC' : str,
+                'STREAM_ADDRESS' : str,
+                'ENCODER' : str,
+                
             },
         }
         

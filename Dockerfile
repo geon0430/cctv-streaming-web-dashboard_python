@@ -17,7 +17,7 @@ RUN apt-get update && apt-get -y upgrade && \
 
 
 RUN ln -s $(which python3) /usr/bin/python
+RUN bash /webrtc_python/setting-scripts/install_ffmpeg.sh
 RUN bash /webrtc_python/setting-scripts/install_dependencies.sh
 RUN bash /webrtc_python/setting-scripts/install_pip.sh
 RUN bash /webrtc_python/setting-scripts/install_OpenCV.sh
-RUN bash /webrtc_python/setting-scripts/install_ffmpeg.sh

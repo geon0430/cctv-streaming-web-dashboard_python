@@ -1,11 +1,11 @@
 import time
-from multiprocessing import Queue, Process
+from multiprocessing import Queue, Process, Event
 import subprocess
 import shlex
 import logging
 
-def FFmpegRead(url: str, height: int, width: int, gpu: int, queue: Queue, logger: logging):
-    while True:
+def FFmpegRead(url: str, height: int, width: int, gpu: int, queue: Queue, stop_event: Event, logger: logging):
+    while not stop_event.is_set():
         cmd = f"""
         ffmpeg
         -rtsp_transport tcp
@@ -29,7 +29,7 @@ def FFmpegRead(url: str, height: int, width: int, gpu: int, queue: Queue, logger
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10**8)
 
         try:
-            while True:
+            while not stop_event.is_set():
                 raw_image = process.stdout.read(data_size)
                 if not raw_image:
                     logger.error("FFmpegRead Error | Data is not raw_image")
@@ -42,18 +42,15 @@ def FFmpegRead(url: str, height: int, width: int, gpu: int, queue: Queue, logger
             print(f"Error in FFmpegRead: {e}")
             
         finally:
-            queue.put(None)
             process.stdout.close()
             process.terminate()
-            stderr_output = process.stderr.read().decode()
-            logger.info(f"FFmpegRead stderr: {stderr_output}")
             logger.info("FFmpegRead | FFmpeg read process has completed.")
         
-        logger.info("FFmpegRead | Restarting FFmpeg read process in 5 seconds...")
-        time.sleep(5)  # 재시작하기 전에 5초 대기
+        time.sleep(5)
+        logger.info("FFmpegRead | Restarting FFmpeg read process")
 
-def FFmpegStream(height: int, width: int, gpu: int, stream_address: str, name: str, codec: str, queue: Queue, logger: logging):
-    while True:
+def FFmpegStream(height: int, width: int, gpu: int, stream_address: str, name: str, codec: str, queue: Queue, stop_event: Event, logger: logging):
+    while not stop_event.is_set():
         cmd = f"""
         ffmpeg
         -re
@@ -82,13 +79,12 @@ def FFmpegStream(height: int, width: int, gpu: int, stream_address: str, name: s
         process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=10**8)
 
         try:
-            while True:
+            while not stop_event.is_set():
                 if not queue.empty():
                     data = queue.get()
                     process.stdin.write(data)
                     process.stdin.flush()
                     logger.debug(f"FFmpegStream | Streaming {len(data)} bytes of data.")
-                    time.sleep(0.03)
                     
         except Exception as e:
             print(f"FFmpegStream Error | {e}")
@@ -101,9 +97,8 @@ def FFmpegStream(height: int, width: int, gpu: int, stream_address: str, name: s
             except BrokenPipeError:
                 pass
             process.terminate()
-            stderr_output = process.stderr.read().decode()
-            logger.info(f"FFmpegStream stderr: {stderr_output}")
             logger.info("FFmpegStream | FFmpeg stream process has completed.")
         
-        logger.info("FFmpegStream | Restarting FFmpeg stream process in 5 seconds...")
-        time.sleep(5)  
+        time.sleep(5)
+        logger.info("FFmpegStream | Restarting FFmpeg stream")
+        print("FFmpegStream | Restarting FFmpeg stream")

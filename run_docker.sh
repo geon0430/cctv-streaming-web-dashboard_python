@@ -11,7 +11,7 @@ docker run \
     --runtime nvidia \
     --gpus all \
     -it \
-    -p ${port_num}2000:7000 \
+    -p ${port_num}2000:5000 \
     -p ${port_num}2888:8888 \
     -p ${port_num}8444:8444 \
     -p ${port_num}8555:8555 \

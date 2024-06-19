@@ -1,7 +1,4 @@
-import subprocess
-import shlex
-import multiprocessing
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Event
 import logging
 from typing import Dict
 import time
@@ -21,6 +18,8 @@ def stream_rtsp(ini_dict : Dict, logger : logging):
     codec = ini_dict['CONFIG']['ENCODER']
     
     read_queue = Queue()
+    stop_event = Event()
+     
     process_read = Process(
         target=FFmpegRead,
         args=(
@@ -29,21 +28,24 @@ def stream_rtsp(ini_dict : Dict, logger : logging):
             width,
             gpu,
             read_queue,
+            stop_event,
             logger,
             )
     )
     
     process_stream = Process(
         target=FFmpegStream,
-        args=(height,
-              width,
-              gpu,
-              stream_address,
-              name,
-              codec,
-              read_queue,
-              logger,
-              )
+        args=(
+            height,
+            width,
+            gpu,
+            stream_address,
+            name,
+            codec,
+            read_queue,
+            stop_event,
+            logger,
+            )
     )
 
     process_read.start()
@@ -54,6 +56,7 @@ def stream_rtsp(ini_dict : Dict, logger : logging):
             time.sleep(1)
     except KeyboardInterrupt:
         print("Interrupted by user, stopping...")
+        
     finally:
         read_queue.put(None)
         process_read.terminate()
@@ -69,3 +72,35 @@ if __name__ == "__main__":
     logger = setup_logger(ini_dict)
         
     stream_rtsp(ini_dict, logger)
+
+
+
+def stream_rtsp(url: str, height: int, width: int, gpu: int, stream_address: str, name: str, codec: str, logger: logging):
+    read_queue = Queue()
+    stop_event = Event()
+
+    process_read = Process(
+        target=FFmpegRead,
+        args=(url, height, width, gpu, read_queue, stop_event, logger)
+    )
+    
+    process_stream = Process(
+        target=FFmpegStream,
+        args=(height, width, gpu, stream_address, name, codec, read_queue, stop_event, logger)
+    )
+
+    process_read.start()
+    process_stream.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Interrupted by user, stopping...")
+    finally:
+        stop_event.set()
+        process_read.terminate()
+        process_stream.terminate()
+        process_read.join()
+        process_stream.join()
+        print("Processes terminated.")

@@ -1,30 +1,23 @@
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
-from datetime import datetime
 import re
+import socket
 from typing import List
-from utils.struct import APIstruct
-
-async def validate_config(json_list: List[APIstruct]) -> str:
-    time_format = "%H:%M"
-    error_messages = []
-
-    for config in json_list:
-        if not re.match("^[a-zA-Z0-9-_@.]+$", config.name):
-            error_messages.append(f"Invalid NAME format: {config.name}")
-        
-        if not re.match("^[0-9]+$", str(config.id)):
-            error_messages.append(f"Invalid ID format: {config.id}")
-        
-    if error_messages:
-        return " | ".join(error_messages)
-    
-    return ""
+from utils.struct import ONVIFstruct
 
 
-async def db_list_check(db_manager : List[APIstruct], json_list: List[APIstruct]) -> str:
+async def onvif_list_check(db_manager, json_list: List[ONVIFstruct], request=None) -> str:
     for new_item in json_list:
-        for existing_item in db_manager.get_db():
-            if new_item.id == existing_item.id or new_item.name == existing_item.name:
-                return f"Duplicate entry found with id: {new_item.id} or name: {new_item.name}"
-    return ""
+        for existing_item in db_manager.get_all_devices():
+            if new_item.name == existing_item.name:
+                return 'duplicate_name'
+            if new_item.ip_address == existing_item.ip_address:
+                return 'duplicate_ip'
+    return "no_duplicate"
+
+
+
+def port_open_check(ip_address: str, port: int) -> bool:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(3)
+    result = sock.connect_ex((ip_address, port))
+    sock.close()
+    return result == 0

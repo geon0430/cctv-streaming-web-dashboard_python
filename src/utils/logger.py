@@ -150,7 +150,7 @@ class logging_class:
 
 def setup_logger(ini_dict):
     log_path = ini_dict['CONFIG']['LOG_FILE_PATH']
-    log_level = ini_dict['CONFIG']['LOG_LEVEL']
+    log_level = ini_dict['CONFIG']['LOG_LEVEL'].upper()
     log_name = ini_dict['CONFIG']['LOG_FILE_NAME']
 
     logger_instance = logging_class(

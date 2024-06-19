@@ -4,10 +4,13 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from utils import setup_logger, DBManager, ConfigManager
-from routers import post_router, get_router, delete_router, put_router
+from routers import root, post_router, get_router, delete_router, put_router
 
 app = FastAPI()
 
+app.mount("/static/", StaticFiles(directory="/webrtc_python/src/web/static/"), name="static")
+
+app.include_router(root)
 app.include_router(post_router)
 app.include_router(get_router)
 app.include_router(delete_router)

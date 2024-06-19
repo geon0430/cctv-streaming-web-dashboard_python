@@ -1,8 +1,4 @@
-from fastapi import FastAPI, Depends
-from pydantic import BaseModel
-from typing import Optional, List
-
-app = FastAPI()
+from utils.struct import APIstruct
 
 class DBManager:
     def __init__(self):
@@ -28,19 +24,3 @@ class DBManager:
         self.db_list = [APIstruct(**item) for item in new_db_list]
 
         return False
-    
-from pydantic import BaseModel
-from typing import Optional, List
-
-class APIstruct(BaseModel):
-    id: int
-    name: str
-
-json_list: List[APIstruct] = []
-
-class DB(BaseModel):
-    id: int
-    name: str
-    gpu: int
-
-db_list: List[DB] = []

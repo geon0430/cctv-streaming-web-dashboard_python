@@ -29,7 +29,6 @@ class ConfigManager:
         all_config_dict = {}
             
         for section in self.config.sections():
-            print(f"Processing section: {section}")
             section_dict = {}
             
             if section not in self.type_map:

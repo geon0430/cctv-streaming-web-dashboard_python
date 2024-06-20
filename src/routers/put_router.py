@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from datetime import datetime
-from utils import  APIstruct
+from utils import  DBStruct
 from utils.request import  get_logger, get_db_manager
 
 put_router = APIRouter()
 
-@put_router.put("/list/{id}", response_model=APIstruct)
-async def PUT_Router(id: int, device: APIstruct, logger=Depends(get_logger),db_manager=Depends(get_db_manager)):
+@put_router.put("/list/{id}", response_model=DBStruct)
+async def PUT_Router(id: int, device: DBStruct, logger=Depends(get_logger),db_manager=Depends(get_db_manager)):
     start_time = datetime.now()
     existing_device = next((d for d in db_manager.get_db() if d.id == id), None)
     if not existing_device:

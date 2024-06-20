@@ -1,22 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from datetime import datetime
 from typing import List
-from utils import APIstruct
+from utils import DBStruct
 from utils.request import get_logger, get_db_manager
 
 get_router = APIRouter()
 
-@get_router.get("/list/", response_model=List[APIstruct])
+@get_router.get("/list/", response_model=List[DBStruct])
 async def get_items(logger=Depends(get_logger), db_manager=Depends(get_db_manager)):
     start_time = datetime.now() 
     json_list = []
 
     for item in db_manager.get_db():
         json_list_data = {}
-        for field in APIstruct.__fields__.keys():
+        for field in DBStruct.__fields__.keys():
             json_list_data[field] = getattr(item, field)
         
-        transformed_item = APIstruct(**json_list_data)
+        transformed_item = DBStruct(**json_list_data)
     
         json_list.append(transformed_item)
 
@@ -28,7 +28,7 @@ async def get_items(logger=Depends(get_logger), db_manager=Depends(get_db_manage
     logger.info("GET Router | JSON Data send successfully ")
     return json_list
 
-@get_router.get("/list/{id}", response_model=APIstruct)
+@get_router.get("/list/{id}", response_model=DBStruct)
 async def get_item_by_idx(id: int, logger=Depends(get_logger), db_manager=Depends(get_db_manager)):
     start_time = datetime.now() 
     for item in db_manager.get_db():

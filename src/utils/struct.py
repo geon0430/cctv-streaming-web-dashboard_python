@@ -12,19 +12,27 @@ class ONVIFstruct(BaseModel):
     pw: Optional[str]
     ip_address: Optional[str]
     
-class APIstruct(BaseModel):
-    id: int
-    name: str
-    id: Optional[str] = Field(index=True)
+class ChannelAddstruct(BaseModel):
+    id: str
     pw: Optional[str]
-    ip_address: Optional[str]
+    name: str
+    onvif_result_address: Optional[str]
+    height: int
+    width: int
+    fps: int
+    codec: str
     
 
-class DB(BaseModel):
-    id: int
-    name: str
-    gpu: int
-    id: Optional[str] = Field(index=True)
+class DBStruct(SQLModel, table=True):
+    idx: Optional[int] = Field(default=None, primary_key=True)
+    id: str
     pw: Optional[str]
-    ip_address: Optional[str]
+    name: str
+    onvif_result_address: Optional[str]
+    height: int
+    width: int
+    fps: float
+    codec: str
+    create_time: str
 
+    

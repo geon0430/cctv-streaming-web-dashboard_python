@@ -22,7 +22,14 @@ async def startup_event():
     ini_dict = api_config.get_config_dict()
     logger = setup_logger(ini_dict)
 
-    db_manager = DBManager()
+    DBNAME = ini_dict['CONFIG']['DB_NAME']
+    KEY = ini_dict['CONFIG']['KEY']
+    database_connection_string = f"sqlite:///{DBNAME}"
+    connect_args = {"check_same_thread": False}
+    engine = create_engine(database_connection_string, echo=False, connect_args=connect_args)
+    db_manager = DBManager(engine, KEY)
+
+    SQLModel.metadata.create_all(engine)
 
     logger.info("DASHBOARD STARTED")
 

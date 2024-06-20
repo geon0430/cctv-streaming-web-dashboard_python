@@ -21,6 +21,10 @@ class ConfigManager:
                 'CODEC' : str,
                 'STREAM_ADDRESS' : str,
                 'ENCODER' : str,
+                'DB_NAME' : str,
+                'MAX_CHANNEL' : int,
+                'NAME_LENGTH' : int,
+                'KEY' : str,
                 
             },
         }

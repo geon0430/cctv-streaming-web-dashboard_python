@@ -3,15 +3,15 @@ import socket
 from typing import List
 from utils.struct import ONVIFstruct
 
-
-async def onvif_list_check(db_manager, json_list: List[ONVIFstruct], request=None) -> str:
-    for new_item in json_list:
-        for existing_item in db_manager.get_all_devices():
-            if new_item.name == existing_item.name:
-                return 'duplicate_name'
-            if new_item.ip_address == existing_item.ip_address:
-                return 'duplicate_ip'
-    return "no_duplicate"
+def onvif_list_type_check(devices: List[ONVIFstruct]) -> bool:
+    try:
+        for device in devices:
+            if not (isinstance(device.ip_address, str) and isinstance(device.id, str) and isinstance(device.pw, str)):
+                raise ValueError(f"Device attributes must be strings. Got: ip={type(device.ip_address)}, id={type(device.id)}, pw={type(device.pw)}")
+        return True
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
 
 
 

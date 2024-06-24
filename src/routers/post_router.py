@@ -1,10 +1,11 @@
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, status, Depends
 from typing import List
 from fastapi.responses import JSONResponse
 from utils import ONVIFstruct, onvif_list_type_check, port_open_check, ChannelAddstruct, DBStruct
 from utils.request import get_logger, get_db_manager, get_ini_dict
 from rtsp.onvif import get_onvif_rtsp_address_list
+import os
 
 post_router = APIRouter()
 
@@ -106,3 +107,17 @@ async def channel_add(devices: List[ChannelAddstruct], logger=Depends(get_logger
     logger.info("POST Router | work finish")
     return {"results": results}
 
+
+@post_router.post("/save_screenshot/", status_code=status.HTTP_201_CREATED)
+async def save_screenshot(image: UploadFile = File(...)):
+    if image.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid image type")
+
+    save_path = os.path.join('./save/', image.filename)  
+    try:
+        with open(save_path, "wb") as buffer:
+            buffer.write(await image.read())
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to save image: {str(e)}")
+    
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"detail": "success"})

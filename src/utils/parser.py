@@ -25,6 +25,7 @@ class ConfigManager:
                 'MAX_CHANNEL' : int,
                 'NAME_LENGTH' : int,
                 'KEY' : str,
+                'SAVE_IMAGE_PATH' : str,
                 
             },
         }

@@ -181,7 +181,54 @@ function displayForm() {
     });
 }
 
-// 캡쳐 기능 추가
+const videoPlayers = document.querySelector('.video-players');
+const fullscreenIcon = document.querySelector('.icon-wrapper[title="전체화면"]');
+let isFullscreen = false;
+
+fullscreenIcon.addEventListener('click', () => {
+    if (!isFullscreen) {
+        openFullscreen(videoPlayers);
+    }
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isFullscreen) {
+        closeFullscreen();
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if (isFullscreen && !videoPlayers.contains(event.target)) {
+        closeFullscreen();
+    }
+});
+
+function openFullscreen(element) {
+    if (element.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) { // Firefox
+        element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) { // Chrome, Safari and Opera
+        element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) { // IE/Edge
+        element.msRequestFullscreen();
+    }
+    isFullscreen = true;
+}
+
+function closeFullscreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) { // Firefox
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { // IE/Edge
+        document.msExitFullscreen();
+    }
+    isFullscreen = false;
+}
+
 document.getElementById('capture-icon').addEventListener('click', captureScreen);
 
 function captureScreen() {

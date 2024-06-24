@@ -11,3 +11,4 @@ pip install sqlmodel
 pip install shortuuid
 pip install pycrypto
 pip install onvif2-zeep
+pip install onvif-zeep zeep

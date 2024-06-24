@@ -5,11 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Page</title>
     <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="main-container">
         <div class="sidebar">
-            <div class="channel-info">채널 정보</div>
+            <div class="channel-info">
+                <div class="icon-grid">
+                    <div class="icon-wrapper" title="캡쳐" id="capture-icon">
+                        <img src="/static/images/camara.png" alt="캡쳐" class="channel-icon" draggable="false">
+                        <span class="tooltip-text">캡쳐</span>
+                    </div>
+                    <div class="icon-wrapper" title="전체화면">
+                        <img src="/static/images/full.png" alt="전체화면" class="channel-icon" draggable="false">
+                        <span class="tooltip-text">전체화면</span>
+                    </div>
+                    <div class="icon-wrapper" title="영상정보">
+                        <img src="/static/images/info.png" alt="영상정보" class="channel-icon" draggable="false">
+                        <span class="tooltip-text">영상정보</span>
+                    </div>
+                    <div class="icon-wrapper" title="모니터분할">
+                        <img src="/static/images/layout.png" alt="모니터분할" class="channel-icon" draggable="false">
+                        <span class="tooltip-text">모니터분할</span>
+                    </div>
+                    <div class="icon-wrapper" title="모든영상제거">
+                        <img src="/static/images/trash.png" alt="모든영상제거" class="channel-icon" draggable="false">
+                        <span class="tooltip-text">모든영상제거</span>
+                    </div>
+                </div>
+            </div>
             <div class="channel-list" id="channel-list"></div>
             <div class="button-container">
                 <button id="add-channel">채널 등록</button>
@@ -53,6 +77,14 @@
                     <button type="button" id="cancel-button" class="cancel-button">취소</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- 알림 모달 -->
+    <div id="notification-modal" class="modal">
+        <div class="modal-content">
+            <p id="notification-message"></p>
+            <button id="close-notification" class="action-button">닫기</button>
         </div>
     </div>
 

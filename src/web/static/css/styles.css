@@ -27,11 +27,57 @@ body, html {
 .channel-info {
     text-align: center;
     font-weight: bold;
-    border: 2px solid #000; 
     padding: 10px;
     margin-bottom: 20px;
     width: 100%;
     box-sizing: border-box;
+}
+
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 5px;
+    width: 100%;
+    height: auto;
+}
+
+.channel-icon {
+    width: 100%;
+    height: auto;
+    user-select: none; /* 드래그 방지 */
+    transition: filter 0.2s;
+}
+
+.channel-icon:hover {
+    filter: brightness(1.2); /* 마우스 오버 시 밝기 증가 */
+}
+
+.icon-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: #000;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    top: -35px; /* 아이콘 바로 위에 툴팁 표시 */
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.icon-wrapper:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
 }
 
 .channel-list {

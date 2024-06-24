@@ -11,12 +11,11 @@ docker run \
     --runtime nvidia \
     --gpus all \
     -it \
-    -p ${port_num}2000:5000 \
     -p ${port_num}2888:8888 \
-    -p ${port_num}8444:8444 \
-    -p ${port_num}8555:8555 \
-    -p ${port_num}4000:9000 \
-    -p ${port_num}3000:8000 \
+    -p ${port_num}2444:8444 \
+    -p ${port_num}2555:8555 \
+    -p ${port_num}2554:8554 \
+    -p ${port_num}2000:9000 \
     --name ${CONTAINER_NAME} \
     --privileged \
     -v /tmp/.X11-unix:/tmp/.X11-unix \

@@ -206,11 +206,11 @@ document.addEventListener('click', (event) => {
 function openFullscreen(element) {
     if (element.requestFullscreen) {
         element.requestFullscreen();
-    } else if (element.mozRequestFullScreen) { // Firefox
+    } else if (element.mozRequestFullScreen) { 
         element.mozRequestFullScreen();
-    } else if (element.webkitRequestFullscreen) { // Chrome, Safari and Opera
+    } else if (element.webkitRequestFullscreen) { 
         element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) { // IE/Edge
+    } else if (element.msRequestFullscreen) {
         element.msRequestFullscreen();
     }
     isFullscreen = true;
@@ -219,11 +219,11 @@ function openFullscreen(element) {
 function closeFullscreen() {
     if (document.exitFullscreen) {
         document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) { // Firefox
+    } else if (document.mozCancelFullScreen) {
         document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+    } else if (document.webkitExitFullscreen) { 
         document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) { // IE/Edge
+    } else if (document.msExitFullscreen) { 
         document.msExitFullscreen();
     }
     isFullscreen = false;
@@ -268,3 +268,92 @@ function showNotification(message) {
         notificationModal.style.display = 'none';
     });
 }
+
+const infoIcon = document.getElementById('info-icon');
+let infoVisible = false;
+let updateInterval = null;
+
+infoIcon.addEventListener('click', () => {
+    infoVisible = !infoVisible;
+    const videoInfos = document.querySelectorAll('.video-info');
+    videoInfos.forEach(info => {
+        info.style.display = infoVisible ? 'block' : 'none';
+    });
+
+    if (infoVisible) {
+        startStatusUpdates();
+    } else {
+        stopStatusUpdates();
+    }
+});
+
+async function updateConnectionStatus() {
+    const videoPlayers = document.querySelectorAll('.player');
+
+    for (const player of videoPlayers) {
+        const videoInfo = player.querySelector('.video-info');
+        try {
+            const response = await fetch('/ping/');
+            const result = await response.json();
+
+            let statusClass = '';
+            let statusText = '';
+
+            if (result.status === "good") {
+                statusClass = 'good';
+                statusText = 'Status: Good';
+            } else if (result.status === "normal") {
+                statusClass = 'normal';
+                statusText = 'Status: Normal';
+            } else {
+                statusClass = 'bad';
+                statusText = 'Status: Bad';
+            }
+
+            videoInfo.className = `video-info ${statusClass}`;
+            videoInfo.innerHTML = `
+                FPS: 30<br>
+                Codec: H.264<br>
+                Bitrate: 5000 kbps<br>
+                Resolution: 1920x1080<br>
+                ${statusText}<br>
+                Latency: ${result.latency} ms
+            `;
+        } catch (error) {
+            videoInfo.className = 'video-info bad';
+            videoInfo.innerHTML = `
+                FPS: 30<br>
+                Codec: H.264<br>
+                Bitrate: 5000 kbps<br>
+                Resolution: 1920x1080<br>
+                Status: Bad<br>
+                Error: ${error.message}
+            `;
+        }
+    }
+}
+
+function startStatusUpdates() {
+    if (!updateInterval) {
+        updateInterval = setInterval(updateConnectionStatus, 1000);
+    }
+}
+
+function stopStatusUpdates() {
+    if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+    }
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        stopStatusUpdates();
+    } else if (infoVisible) {
+        startStatusUpdates();
+    }
+});
+
+window.addEventListener('beforeunload', () => {
+    stopStatusUpdates();
+});

@@ -101,4 +101,8 @@ function initializeVideoInfoState() {
     stopStatusUpdates();
 }
 
+// Ensure initializeVideoInfoState is globally accessible
+window.initializeVideoInfoState = initializeVideoInfoState;
+
+// Call the initializeVideoInfoState function on load to reset state
 window.addEventListener('load', initializeVideoInfoState);

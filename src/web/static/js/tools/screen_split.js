@@ -13,8 +13,11 @@ function toggleDropdown() {
 function selectImage(imageId) {
     updateVideoPlayers(imageId);
     monitorSplitDropdown.style.display = 'none';
-    initializeVideoInfoState();  // 비디오 정보 초기화 후 다시 불러오기
-    updateConnectionStatus(); // 새로운 정보를 불러오기
+    if (window.initializeVideoInfoState) {
+        window.initializeVideoInfoState();  // 비디오 정보 초기화 후 다시 불러오기
+    } else {
+        console.error('initializeVideoInfoState function is not defined.');
+    }
 }
 
 function updateVideoPlayers(layout) {

@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     width: parseInt(selectedRow.cells[1].textContent.split('x')[0]),
                     codec: selectedRow.cells[2].textContent,
                     fps: parseFloat(selectedRow.cells[3].textContent),
-                    group: queryData.group // Make sure to include the group
+                    group: queryData.group 
                 };
                 console.log('Selected Data:', selectedData);
                 await registerChannel(selectedData);
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await response.json();
             alert('채널 등록 성공: ' + JSON.stringify(result));
-            resetToInitialState(); // Reset to initial state after successful registration
+            resetToInitialState(); 
         } catch (error) {
             alert('채널 등록 중 오류 발생: ' + error);
         }

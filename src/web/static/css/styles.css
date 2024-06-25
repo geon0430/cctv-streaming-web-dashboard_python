@@ -277,3 +277,31 @@ body, html {
 .player {
     position: relative; 
 }
+
+.dropdown {
+    position: absolute;
+    display: none;
+    background-color: white;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    top: 100%; /* Ensure it appears below the icon */
+    left: 0;
+    padding: 8px; /* Adjust based on your design */
+}
+
+.image-grid {
+    display: flex; /* Display options in a row */
+    gap: 10px;
+}
+
+.image-wrapper {
+    border: 1px solid #ddd;
+    padding: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.image-wrapper img {
+    max-width: 40px; /* Adjust size as needed */
+    height: auto;
+}

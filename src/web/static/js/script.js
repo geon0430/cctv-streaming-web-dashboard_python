@@ -181,13 +181,13 @@ function displayForm() {
     });
 }
 
-const videoPlayers = document.querySelector('.video-players');
+const videoPlayersContainer = document.getElementById('video-players-container');
 const fullscreenIcon = document.querySelector('.icon-wrapper[title="전체화면"]');
 let isFullscreen = false;
 
 fullscreenIcon.addEventListener('click', () => {
     if (!isFullscreen) {
-        openFullscreen(videoPlayers);
+        openFullscreen(videoPlayersContainer);
     }
 });
 
@@ -198,7 +198,7 @@ document.addEventListener('keydown', (event) => {
 });
 
 document.addEventListener('click', (event) => {
-    if (isFullscreen && !videoPlayers.contains(event.target)) {
+    if (isFullscreen && !videoPlayersContainer.contains(event.target)) {
         closeFullscreen();
     }
 });
@@ -232,7 +232,7 @@ function closeFullscreen() {
 document.getElementById('capture-icon').addEventListener('click', captureScreen);
 
 function captureScreen() {
-    html2canvas(document.querySelector('.video-players')).then(canvas => {
+    html2canvas(videoPlayersContainer).then(canvas => {
         canvas.toBlob(blob => {
             const formData = new FormData();
             const filename = `screenshot_${Date.now()}.png`;
@@ -357,3 +357,73 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('beforeunload', () => {
     stopStatusUpdates();
 });
+
+const monitorSplitIcon = document.getElementById('monitor-split-icon');
+const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
+
+monitorSplitIcon.addEventListener('click', (event) => {
+    monitorSplitDropdown.style.display = monitorSplitDropdown.style.display === 'block' ? 'none' : 'block';
+    event.stopPropagation();
+});
+
+document.addEventListener('click', (event) => {
+    if (!monitorSplitDropdown.contains(event.target) && !monitorSplitIcon.contains(event.target)) {
+        monitorSplitDropdown.style.display = 'none';
+    }
+});
+
+function selectImage(imageId) {
+    updateVideoPlayers(imageId);
+    monitorSplitDropdown.style.display = 'none';
+}
+
+function updateVideoPlayers(layout) {
+    const videoPlayersContainer = document.getElementById('video-players-container');
+    videoPlayersContainer.innerHTML = ''; 
+
+    let rows, columns;
+    switch (layout) {
+        case 'img1':
+            rows = 1;
+            columns = 1;
+            break;
+        case 'img2':
+            rows = 2;
+            columns = 2;
+            break;
+        case 'img3':
+            rows = 3;
+            columns = 3;
+            break;
+        case 'img4':
+            rows = 4;
+            columns = 4;
+            break;
+        default:
+            rows = 1;
+            columns = 1;
+    }
+
+    videoPlayersContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    videoPlayersContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+
+    for (let i = 1; i <= rows * columns; i++) {
+        const player = document.createElement('div');
+        player.className = `player player${i}`;
+        player.innerHTML = `
+            <video id="video${i}" width="100%" height="100%" autoplay muted></video>
+            <div class="video-info" id="info${i}"></div>
+        `;
+        videoPlayersContainer.appendChild(player);
+    }
+
+    infoVisible = false;
+    const videoInfos = document.querySelectorAll('.video-info');
+    videoInfos.forEach(info => {
+        info.style.display = 'none';
+    });
+
+    stopStatusUpdates();
+}
+
+updateVideoPlayers('img1');

@@ -5,7 +5,7 @@ from typing import List
 from utils import ONVIFstruct, onvif_list_type_check, port_open_check
 from onvif import get_onvif_rtsp_address_list
 
-async def onvif_list(devices: List[ONVIFstruct], logger) -> JSONResponse:
+async def search_onvif_list(devices: List[ONVIFstruct], logger) -> JSONResponse:
     start_time = datetime.now()
     results = []
 
@@ -15,19 +15,19 @@ async def onvif_list(devices: List[ONVIFstruct], logger) -> JSONResponse:
             logger.error(f"POST Router | ERROR | Type Error Detected: {device.ip_address}")
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="type error.")
         
-        logger.info("POST Router | INFO | starting type check success")
+        logger.info("POST Router | starting type check success")
 
         if not port_open_check(device.ip_address, 80):
             logger.error(f"POST Router | ERROR | No connection could be made to the IP address: {device.ip_address}")
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="IP address is not reachable.")
 
-        logger.info("POST Router | INFO | starting port open check success")
+        logger.info("POST Router | starting port open check success")
         
         logger.info(f"POST Router | start onvif to read rtsp address : {device}")
 
         try:
             device_results = get_onvif_rtsp_address_list(device.ip_address, 80, device.id, device.pw)
-            logger.info("POST Router | INFO | start onvif check success")
+            logger.info("POST Router | start onvif check success")
             results.extend(device_results)
         except ValueError as ve:
             if "Authentication failed" in str(ve):

@@ -181,205 +181,9 @@ function displayForm() {
     });
 }
 
-const videoPlayersContainer = document.getElementById('video-players-container');
-const fullscreenIcon = document.querySelector('.icon-wrapper[title="전체화면"]');
-let isFullscreen = false;
-
-fullscreenIcon.addEventListener('click', () => {
-    if (!isFullscreen) {
-        openFullscreen(videoPlayersContainer);
-    }
-});
-
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && isFullscreen) {
-        closeFullscreen();
-    }
-});
-
-document.addEventListener('click', (event) => {
-    if (isFullscreen && !videoPlayersContainer.contains(event.target)) {
-        closeFullscreen();
-    }
-});
-
-function openFullscreen(element) {
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else if (element.mozRequestFullScreen) { 
-        element.mozRequestFullScreen();
-    } else if (element.webkitRequestFullscreen) { 
-        element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen();
-    }
-    isFullscreen = true;
-}
-
-function closeFullscreen() {
-    if (document.exitFullscreen) {
-        document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) { 
-        document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) { 
-        document.msExitFullscreen();
-    }
-    isFullscreen = false;
-}
-
-document.getElementById('capture-icon').addEventListener('click', captureScreen);
-
-function captureScreen() {
-    html2canvas(videoPlayersContainer).then(canvas => {
-        canvas.toBlob(blob => {
-            const formData = new FormData();
-            const filename = `screenshot_${Date.now()}.png`;
-            formData.append('image', blob, filename);
-
-            fetch('/save_screenshot/', {
-                method: 'POST',
-                body: formData
-            }).then(response => {
-                if (response.ok) {
-                    showNotification(`Screenshot saved successfully at /desired/path/${filename}`);
-                } else {
-                    showNotification('Failed to save screenshot.');
-                }
-            }).catch(error => {
-                console.error('Error:', error);
-                showNotification('An error occurred while saving the screenshot.');
-            });
-        });
-    }).catch(error => {
-        console.error('Error capturing screen:', error);
-        showNotification('An error occurred while capturing the screen.');
-    });
-}
-
-function showNotification(message) {
-    const notificationModal = document.getElementById('notification-modal');
-    const notificationMessage = document.getElementById('notification-message');
-    notificationMessage.textContent = message;
-    notificationModal.style.display = 'block';
-
-    document.getElementById('close-notification').addEventListener('click', () => {
-        notificationModal.style.display = 'none';
-    });
-}
-
-const infoIcon = document.getElementById('info-icon');
-let infoVisible = false;
-let updateInterval = null;
-
-infoIcon.addEventListener('click', () => {
-    infoVisible = !infoVisible;
-    const videoInfos = document.querySelectorAll('.video-info');
-    videoInfos.forEach(info => {
-        info.style.display = infoVisible ? 'block' : 'none';
-    });
-
-    if (infoVisible) {
-        startStatusUpdates();
-    } else {
-        stopStatusUpdates();
-    }
-});
-
-async function updateConnectionStatus() {
-    const videoPlayers = document.querySelectorAll('.player');
-
-    for (const player of videoPlayers) {
-        const videoInfo = player.querySelector('.video-info');
-        try {
-            const response = await fetch('/ping/');
-            const result = await response.json();
-
-            let statusClass = '';
-            let statusText = '';
-
-            if (result.status === "good") {
-                statusClass = 'good';
-                statusText = 'Status: Good';
-            } else if (result.status === "normal") {
-                statusClass = 'normal';
-                statusText = 'Status: Normal';
-            } else {
-                statusClass = 'bad';
-                statusText = 'Status: Bad';
-            }
-
-            videoInfo.className = `video-info ${statusClass}`;
-            videoInfo.innerHTML = `
-                FPS: 30<br>
-                Codec: H.264<br>
-                Bitrate: 5000 kbps<br>
-                Resolution: 1920x1080<br>
-                ${statusText}<br>
-                Latency: ${result.latency} ms
-            `;
-        } catch (error) {
-            videoInfo.className = 'video-info bad';
-            videoInfo.innerHTML = `
-                FPS: 30<br>
-                Codec: H.264<br>
-                Bitrate: 5000 kbps<br>
-                Resolution: 1920x1080<br>
-                Status: Bad<br>
-                Error: ${error.message}
-            `;
-        }
-    }
-}
-
-function startStatusUpdates() {
-    if (!updateInterval) {
-        updateInterval = setInterval(updateConnectionStatus, 1000);
-    }
-}
-
-function stopStatusUpdates() {
-    if (updateInterval) {
-        clearInterval(updateInterval);
-        updateInterval = null;
-    }
-}
-
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        stopStatusUpdates();
-    } else if (infoVisible) {
-        startStatusUpdates();
-    }
-});
-
-window.addEventListener('beforeunload', () => {
-    stopStatusUpdates();
-});
-
-const monitorSplitIcon = document.getElementById('monitor-split-icon');
-const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
-
-monitorSplitIcon.addEventListener('click', (event) => {
-    monitorSplitDropdown.style.display = monitorSplitDropdown.style.display === 'block' ? 'none' : 'block';
-    event.stopPropagation();
-});
-
-document.addEventListener('click', (event) => {
-    if (!monitorSplitDropdown.contains(event.target) && !monitorSplitIcon.contains(event.target)) {
-        monitorSplitDropdown.style.display = 'none';
-    }
-});
-
-function selectImage(imageId) {
-    updateVideoPlayers(imageId);
-    monitorSplitDropdown.style.display = 'none';
-}
-
 function updateVideoPlayers(layout) {
     const videoPlayersContainer = document.getElementById('video-players-container');
-    videoPlayersContainer.innerHTML = ''; 
+    const currentVideos = videoPlayersContainer.querySelectorAll('video');
 
     let rows, columns;
     switch (layout) {
@@ -407,23 +211,51 @@ function updateVideoPlayers(layout) {
     videoPlayersContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
     videoPlayersContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
 
-    for (let i = 1; i <= rows * columns; i++) {
+    for (let i = 0; i < currentVideos.length; i++) {
+        if (i < rows * columns) {
+            continue; 
+        } else {
+            currentVideos[i].pause();
+            currentVideos[i].src = '';
+        }
+    }
+
+    for (let i = currentVideos.length; i < rows * columns; i++) {
         const player = document.createElement('div');
-        player.className = `player player${i}`;
+        player.className = `player player${i + 1}`;
         player.innerHTML = `
-            <video id="video${i}" width="100%" height="100%" autoplay muted></video>
-            <div class="video-info" id="info${i}"></div>
+            <video id="video${i + 1}" width="100%" height="100%" autoplay muted></video>
+            <div class="video-info" id="info${i + 1}"></div>
         `;
         videoPlayersContainer.appendChild(player);
     }
 
-    infoVisible = false;
+    for (let i = currentVideos.length - 1; i >= rows * columns; i--) {
+        videoPlayersContainer.removeChild(currentVideos[i].parentNode);
+    }
+
     const videoInfos = document.querySelectorAll('.video-info');
     videoInfos.forEach(info => {
         info.style.display = 'none';
     });
 
-    stopStatusUpdates();
+    fetch('/update_player_layout/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ layout: layout })
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    }).then(data => {
+        console.log('Player layout updated:', data);
+    }).catch(error => {
+        console.error('Error updating player layout:', error);
+    });
 }
 
+// 예시: 레이아웃을 'img1'로 업데이트
 updateVideoPlayers('img1');

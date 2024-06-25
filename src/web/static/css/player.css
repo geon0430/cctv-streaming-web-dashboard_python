@@ -1,0 +1,37 @@
+.video-players {
+    display: grid;
+    grid-template-areas:
+        "player1 player2"
+        "player3 player4";
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+.player {
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #000; 
+}
+
+.player1 { grid-area: player1; }
+.player2 { grid-area: player2; }
+.player3 { grid-area: player3; }
+.player4 { grid-area: player4; }
+
+.channel-item {
+    border: 1px solid #000;
+    padding: 10px;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+
+
+.player {
+    position: relative; 
+}
+

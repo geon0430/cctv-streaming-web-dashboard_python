@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Page</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <!-- Link to base styles -->
+    <link rel="stylesheet" href="/static/css/base.css">
+    <!-- Link to modal specific styles -->
+    <link rel="stylesheet" href="/static/css/modal.css">
+    <!-- Link to tools specific styles -->
+    <link rel="stylesheet" href="/static/css/tool.css">
+    <!-- Link to video player specific styles -->
+    <link rel="stylesheet" href="/static/css/player.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
@@ -94,6 +101,10 @@
         </div>
     </div>
 
-    <script src="/static/js/script.js"></script>
+    <script src="/static/js/tools/capture.js"></script>
+    <script src="/static/js/tools/full_screen.js"></script>
+    <script src="/static/js/tools/screen_split.js"></script>
+    <script src="/static/js/tools/video_info.js"></script>
+    <script src="/static/js/channel/channel_list.js"></script>
 </body>
 </html>

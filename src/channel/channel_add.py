@@ -1,7 +1,7 @@
 from datetime import datetime
 from fastapi import HTTPException, status
 from typing import List
-from utils import ChannelAddstruct, DBStruct
+from utils import ChannelAddstruct, ChannelDBStruct
 
 async def channel_add(devices: List[ChannelAddstruct], logger, db_manager, ini_dict) -> dict:
     logger.info(f"POST Router | Received RTSP data: {devices}")
@@ -18,7 +18,7 @@ async def channel_add(devices: List[ChannelAddstruct], logger, db_manager, ini_d
     logger.info(f"POST Router | start")
     for device in devices:
         try:
-            db_struct = DBStruct(
+            db_struct = ChannelDBStruct(
                 idx=None,
                 id=device.id,
                 pw=device.pw,

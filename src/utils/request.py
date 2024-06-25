@@ -1,8 +1,17 @@
 from fastapi import HTTPException, status, Request
 
-def get_db_manager(request: Request):
+def get_player_db(request: Request):
     try:
-        db_manager = request.app.state.db_manager
+        db_manager = request.app.state.player_db
+        if db_manager is None:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DB Manager not initialized")
+        return db_manager
+    except AttributeError:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DB Manager attribute not found in app state")
+    
+def get_channel_db(request: Request):
+    try:
+        db_manager = request.app.state.channel_db
         if db_manager is None:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DB Manager not initialized")
         return db_manager

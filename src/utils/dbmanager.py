@@ -1,33 +1,34 @@
-from sqlmodel import Session, select, asc, desc
-from typing import Optional
+from sqlmodel import SQLModel, Session, select, asc, desc, Field
+from typing import Optional, Type
 import shortuuid
 import sys
 sys.path.append("../")
-from utils.struct import DBStruct
+from utils.struct import ChannelDBStruct, VideoPlayerStruct
 from utils.aes import AESCipher
 
 class DBManager:
-    def __init__(self, engine, KEY):
+    def __init__(self, engine, KEY, struct_type: Type[SQLModel]):
         self.engine = engine
         self.cipher = AESCipher(KEY)
+        self.struct_type = struct_type
 
-    def add_device(self, device):
+    def add_device(self, device: SQLModel):
         with Session(self.engine) as session:
             session.add(device)
             session.commit()
 
     def remove_device(self, device_idx: int) -> bool:
         with Session(self.engine) as session:
-            instance = session.exec(select(DBStruct).where(DBStruct.idx == device_idx)).first()
+            instance = session.exec(select(self.struct_type).where(self.struct_type.idx == device_idx)).first()
             if instance:
                 session.delete(instance)
                 session.commit()
                 return True
             return False
 
-    def update_device(self, device_idx, new_data):
+    def update_device(self, device_idx: int, new_data: dict) -> bool:
         with Session(self.engine) as session:
-            instance = session.exec(select(DBStruct).where(DBStruct.idx == device_idx)).first()
+            instance = session.exec(select(self.struct_type).where(self.struct_type.idx == device_idx)).first()
             if instance:
                 for key, value in new_data.items():
                     setattr(instance, key, value)
@@ -37,29 +38,37 @@ class DBManager:
 
     def get_all_devices(self, sort_by: Optional[str] = None, order: str = 'asc'):
         with Session(self.engine) as session:
-            query = select(DBStruct)
+            query = select(self.struct_type)
             if sort_by:
                 if order == 'desc':
-                    query = query.order_by(desc(getattr(DBStruct, sort_by)))
+                    query = query.order_by(desc(getattr(self.struct_type, sort_by)))
                 else:
-                    query = query.order_by(asc(getattr(DBStruct, sort_by)))
+                    query = query.order_by(asc(getattr(self.struct_type, sort_by)))
             devices = session.exec(query).all()
             return devices
 
     def get_device_by_idx(self, idx: int):
         with Session(self.engine) as session:
-            return session.exec(select(DBStruct).where(DBStruct.idx == idx)).first()
+            return session.exec(select(self.struct_type).where(self.struct_type.idx == idx)).first()
 
-    async def name_create(db_manager, name_length):
-        existing_names = {device.name for device in db_manager.get_all_devices()}
-        epoch = 0
+    def initialize_players(self):
+        with Session(self.engine) as session:
+            for i in range(1, 17):  
+                player = VideoPlayerStruct(player_number=i, channel_id=None)
+                session.add(player)
+            session.commit()
 
-        while True:
-            if epoch > 30:
-                name_length += 1  
-                epoch = 0  
+    def update_player(self, player_number: int, channel_id: Optional[int]):
+        with Session(self.engine) as session:
+            player = session.exec(select(VideoPlayerStruct).where(VideoPlayerStruct.player_number == player_number)).first()
+            if player:
+                player.channel_id = channel_id
+                session.commit()
 
-            new_name = shortuuid.uuid()[:name_length]
-            if new_name not in existing_names:
-                return new_name  
-            epoch += 1
+    def get_player_by_number(self, player_number: int):
+        with Session(self.engine) as session:
+            return session.exec(select(VideoPlayerStruct).where(VideoPlayerStruct.player_number == player_number)).first()
+
+    def get_all_players(self):
+        with Session(self.engine) as session:
+            return session.exec(select(VideoPlayerStruct)).all()

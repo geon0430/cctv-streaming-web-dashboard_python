@@ -23,7 +23,7 @@ class ChannelAddstruct(BaseModel):
     codec: str
     
 
-class DBStruct(SQLModel, table=True):
+class ChannelDBStruct(SQLModel, table=True):
     idx: Optional[int] = Field(default=None, primary_key=True)
     id: str
     pw: Optional[str]
@@ -34,5 +34,13 @@ class DBStruct(SQLModel, table=True):
     fps: float
     codec: str
     create_time: str
+    
+class VideoPlayerStruct(SQLModel, table=True):
+    idx: Optional[int] = Field(default=None, primary_key=True)
+    onvif_result_address: Optional[str]
+    height: int
+    width: int
+    fps: float
+    codec: str
 
     

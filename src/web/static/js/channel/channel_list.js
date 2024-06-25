@@ -3,8 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelButton = document.getElementById('cancel-button');
     const modal = document.getElementById('modal');
     const addGroupButton = document.getElementById('add-group');
-    const cancelGroupButton = document.getElementById('cancel-group');
-    const saveGroupButton = document.getElementById('save-group');
 
     function openModal() {
         resetFormFields();
@@ -47,8 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     addChannelButton.addEventListener('click', openModal);
     cancelButton.addEventListener('click', closeModal);
     addGroupButton.addEventListener('click', openGroupModal);
-    cancelGroupButton.addEventListener('click', closeGroupModal);
-    saveGroupButton.addEventListener('click', addGroup);
 
     document.getElementById('channel-form').addEventListener('submit', (event) => {
         event.preventDefault();
@@ -220,10 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await response.json();
             alert('채널 등록 성공: ' + JSON.stringify(result));
-            closeModal(); // Close the modal after successful registration
-            resetFormFields(); // Reset the form fields
-            addChannelButton.removeEventListener('click', openModal);
-            addChannelButton.addEventListener('click', openModal); // Reattach the event listener
+            resetToInitialState(); // Reset to initial state after successful registration
         } catch (error) {
             alert('채널 등록 중 오류 발생: ' + error);
         }
@@ -234,10 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (form) {
             form.reset();
         }
-        document.getElementById('ip').value = '';
-        document.getElementById('id').value = '';
-        document.getElementById('pass').value = '';
-        document.getElementById('group').value = '';
     }
 
     function displayForm() {
@@ -280,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.getElementById('cancel-button').addEventListener('click', () => {
-            document.getElementById('modal').style.display = 'none';
+            closeModal();
         });
 
         document.getElementById('onvif-tab').addEventListener('click', () => {
@@ -292,5 +281,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         fetchGroups();
+    }
+
+    function resetToInitialState() {
+        closeModal();
+        resetFormFields();
+        addChannelButton.removeEventListener('click', openModal);
+        addChannelButton.addEventListener('click', openModal);
+        displayForm();
     }
 });

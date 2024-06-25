@@ -16,6 +16,7 @@ class DBManager:
         with Session(self.engine) as session:
             session.add(device)
             session.commit()
+            session.refresh(device) 
 
     def remove_device(self, device_idx: int) -> bool:
         with Session(self.engine) as session:
@@ -72,3 +73,10 @@ class DBManager:
     def get_all_players(self):
         with Session(self.engine) as session:
             return session.exec(select(VideoPlayerStruct)).all()
+        
+    def get_all_groups(self):
+        with Session(self.engine) as session:
+            query = select(self.struct_type.group).distinct()
+            result = session.exec(query).all()
+            groups = list(set(group for group in result if group and group.strip()))
+        return groups

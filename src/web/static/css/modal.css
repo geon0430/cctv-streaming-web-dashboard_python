@@ -71,7 +71,7 @@
     margin-top: 20px;
 }
 
-.action-button, .cancel-button {
+.action-button, .cancel-button, .group-button {
     padding: 10px 20px;
     border: none;
     cursor: pointer;
@@ -81,12 +81,12 @@
     transition: background-color 0.3s;
 }
 
-.action-button {
+.action-button, .group-button {
     background-color: #007BFF;
     color: white;
 }
 
-.action-button:hover {
+.action-button:hover, .group-button:hover {
     background-color: #0056b3;
 }
 
@@ -198,4 +198,31 @@
 
 .button-container button:hover {
     background-color: #0056b3;
+}
+
+.tab-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 20px; /* Adjusted for larger size */
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    transition: background-color 0.3s;
+    font-size: 20px; /* Larger font size for better visibility */
+    font-weight: bold; /* Make the text bold */
+    height: 20%; /* Use 20% of the height */
+}
+
+.tab-button.active {
+    background-color: #007BFF;
+    color: white;
+}
+
+.tab-button:not(.active):hover {
+    background-color: #ddd;
 }

@@ -21,6 +21,7 @@ class ChannelAddstruct(BaseModel):
     width: int
     fps: int
     codec: str
+    group: str
     
 
 class ChannelDBStruct(SQLModel, table=True):
@@ -34,6 +35,7 @@ class ChannelDBStruct(SQLModel, table=True):
     fps: float
     codec: str
     create_time: str
+    group: str
     
 class VideoPlayerStruct(SQLModel, table=True):
     idx: Optional[int] = Field(default=None, primary_key=True)

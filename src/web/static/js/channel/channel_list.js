@@ -1,261 +1,296 @@
-document.getElementById('add-channel').addEventListener('click', () => {
-    resetFormFields();
-    document.getElementById('modal').style.display = 'block';
-});
+document.addEventListener('DOMContentLoaded', () => {
+    const addChannelButton = document.getElementById('add-channel');
+    const cancelButton = document.getElementById('cancel-button');
+    const modal = document.getElementById('modal');
+    const addGroupButton = document.getElementById('add-group');
+    const cancelGroupButton = document.getElementById('cancel-group');
+    const saveGroupButton = document.getElementById('save-group');
 
-document.getElementById('cancel-button').addEventListener('click', () => {
-    document.getElementById('modal').style.display = 'none';
-});
-
-document.getElementById('channel-form').addEventListener('submit', (event) => {
-    event.preventDefault();
-    queryChannel();
-});
-
-async function queryChannel() {
-    const ip = document.getElementById('ip').value;
-    const id = document.getElementById('id').value;
-    const password = document.getElementById('pass').value;
-
-    const data = {
-        ip_address: ip,
-        id: id,
-        pw: password
-    };
-
-    try {
-        const response = await fetch('/onvif_list/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify([data])
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        if (result.detail === "success") {
-            displayResults(result.data, data);
-        } else {
-            alert('Error: ' + result.detail);
-        }
-    } catch (error) {
-        alert('조회 중 오류 발생: ' + error);
+    function openModal() {
+        resetFormFields();
+        modal.style.display = 'block';
+        fetchGroups();
     }
-}
 
-function displayResults(data, queryData) {
-    const modalContent = document.querySelector('.modal-content');
-    modalContent.innerHTML = `
-        <h1>조회 결과</h1>
-        <div id="result-table-container">
-            <table id="result-table">
-                <thead>
-                    <tr>
-                        <th>Profile</th>
-                        <th>Resolution</th>
-                        <th>Codec</th>
-                        <th>FPS</th>
-                        <th style="display:none;">RTSP</th> <!-- RTSP URL을 숨긴 칼럼 -->
-                    </tr>
-                </thead>
-                <tbody>
-                    ${data.map(item => `
-                        <tr onclick="selectRow(this)">
-                            <td>${item.name}</td>
-                            <td>${item.width}x${item.height}</td>
-                            <td>${item.codec}</td>
-                            <td>${item.fps}</td>
-                            <td style="display:none;">${item.rtsp}</td> <!-- RTSP URL을 숨긴 데이터 -->
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-        <div class="button-container">
-            <button id="prev-button">이전</button>
-            <button id="register-button">등록</button>
-        </div>
-    `;
+    function closeModal() {
+        modal.style.display = 'none';
+    }
 
-    document.getElementById('prev-button').addEventListener('click', () => {
-        displayForm();
-    });
+    function openGroupModal() {
+        const groupModal = document.getElementById('group-modal');
+        groupModal.style.display = 'block';
+    }
 
-    document.getElementById('register-button').addEventListener('click', async () => {
-        const selectedRow = document.querySelector('#result-table tr.selected');
-        if (selectedRow) {
-            const selectedData = {
-                id: queryData.id,
-                pw: queryData.pw,
-                name: selectedRow.cells[0].textContent,
-                onvif_result_address: selectedRow.cells[4].textContent,
-                height: parseInt(selectedRow.cells[1].textContent.split('x')[1]),
-                width: parseInt(selectedRow.cells[1].textContent.split('x')[0]),
-                codec: selectedRow.cells[2].textContent,
-                fps: parseFloat(selectedRow.cells[3].textContent)
-            };
-            console.log('Selected Data:', selectedData);
-            await registerChannel(selectedData);
-        } else {
-            alert('항목을 선택하세요.');
-        }
-    });
+    function closeGroupModal() {
+        const groupModal = document.getElementById('group-modal');
+        groupModal.style.display = 'none';
+    }
 
-    document.getElementById('modal').style.display = 'block';
-}
+    async function addGroup() {
+        const groupName = document.getElementById('group-name').value;
 
-async function registerChannel(data) {
-    console.log('Register Channel Data:', data);
-    try {
-        const response = await fetch('/channel_add/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify([data])
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (!groupName) {
+            alert('그룹명을 입력하세요.');
+            return;
         }
 
-        const result = await response.json();
-        alert('채널 등록 성공: ' + JSON.stringify(result));
-        document.getElementById('modal').style.display = 'none';
-        resetFormFields(); 
-    } catch (error) {
-        alert('채널 등록 중 오류 발생: ' + error);
+        const groupSelect = document.getElementById('group');
+
+        const option = document.createElement('option');
+        option.value = groupName;
+        option.textContent = groupName;
+        groupSelect.appendChild(option);
+
+        closeGroupModal();
     }
-}
 
-function selectRow(row) {
-    const selected = document.querySelector('#result-table tr.selected');
-    if (selected) {
-        selected.classList.remove('selected');
-    }
-    row.classList.add('selected');
-}
-
-function resetFormFields() {
-    document.getElementById('channel-form').reset();
-    document.getElementById('ip').value = '';
-    document.getElementById('id').value = '';
-    document.getElementById('pass').value = '';
-}
-
-function displayForm() {
-    const modalContent = document.querySelector('.modal-content');
-    modalContent.innerHTML = `
-        <h1>채널 등록</h1>
-        <form id="channel-form">
-            <div class="form-group">
-                <label for="ip">IP:</label>
-                <input type="text" id="ip" name="ip" class="input-field">
-            </div>
-            <div class="form-group">
-                <label for="id">ID:</label>
-                <input type="text" id="id" name="id" class="input-field">
-            </div>
-            <div class="form-group">
-                <label for="pass">Password:</label>
-                <input type="password" id="pass" name="pass" class="input-field">
-            </div>
-            <div class="button-container">
-                <button type="submit" class="action-button">조회</button>
-                <button type="button" id="cancel-button" class="cancel-button">취소</button>
-            </div>
-        </form>
-    `;
+    addChannelButton.addEventListener('click', openModal);
+    cancelButton.addEventListener('click', closeModal);
+    addGroupButton.addEventListener('click', openGroupModal);
+    cancelGroupButton.addEventListener('click', closeGroupModal);
+    saveGroupButton.addEventListener('click', addGroup);
 
     document.getElementById('channel-form').addEventListener('submit', (event) => {
         event.preventDefault();
         queryChannel();
     });
 
-    document.getElementById('cancel-button').addEventListener('click', () => {
-        document.getElementById('modal').style.display = 'none';
+    document.getElementById('onvif-tab').addEventListener('click', () => {
+        setActiveTab('onvif');
     });
-}
 
-function updateVideoPlayers(layout) {
-    const videoPlayersContainer = document.getElementById('video-players-container');
-    const currentVideos = videoPlayersContainer.querySelectorAll('video');
+    document.getElementById('rtsp-tab').addEventListener('click', () => {
+        setActiveTab('rtsp');
+    });
 
-    let rows, columns;
-    switch (layout) {
-        case 'img1':
-            rows = 1;
-            columns = 1;
-            break;
-        case 'img2':
-            rows = 2;
-            columns = 2;
-            break;
-        case 'img3':
-            rows = 3;
-            columns = 3;
-            break;
-        case 'img4':
-            rows = 4;
-            columns = 4;
-            break;
-        default:
-            rows = 1;
-            columns = 1;
-    }
-
-    videoPlayersContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-    videoPlayersContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-
-    for (let i = 0; i < currentVideos.length; i++) {
-        if (i < rows * columns) {
-            continue; 
+    function setActiveTab(tab) {
+        if (tab === 'onvif') {
+            document.getElementById('onvif-tab').classList.add('active');
+            document.getElementById('rtsp-tab').classList.remove('active');
         } else {
-            currentVideos[i].pause();
-            currentVideos[i].src = '';
+            document.getElementById('onvif-tab').classList.remove('active');
+            document.getElementById('rtsp-tab').classList.add('active');
         }
     }
 
-    for (let i = currentVideos.length; i < rows * columns; i++) {
-        const player = document.createElement('div');
-        player.className = `player player${i + 1}`;
-        player.innerHTML = `
-            <video id="video${i + 1}" width="100%" height="100%" autoplay muted></video>
-            <div class="video-info" id="info${i + 1}"></div>
+    async function fetchGroups() {
+        try {
+            const response = await fetch('/get_groups/');
+            const groups = await response.json();
+            const groupSelect = document.getElementById('group');
+            groupSelect.innerHTML = '<option value="">Select group</option>';
+            if (groups.length > 0) {
+                groups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group;
+                    option.textContent = group;
+                    groupSelect.appendChild(option);
+                });
+            } else {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No groups available';
+                groupSelect.appendChild(option);
+            }
+        } catch (error) {
+            console.error('Error fetching groups:', error);
+        }
+    }
+
+    async function queryChannel() {
+        const ip = document.getElementById('ip').value;
+        const id = document.getElementById('id').value;
+        const password = document.getElementById('pass').value;
+        const group = document.getElementById('group').value;
+
+        const data = {
+            ip_address: ip,
+            id: id,
+            pw: password,
+            group: group
+        };
+
+        try {
+            const response = await fetch('/onvif_list/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([data])
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.detail === "success") {
+                displayResults(result.data, data);
+            } else {
+                alert('Error: ' + result.detail);
+            }
+        } catch (error) {
+            alert('조회 중 오류 발생: ' + error);
+        }
+    }
+
+    function displayResults(data, queryData) {
+        const modalContent = document.querySelector('.modal-content');
+        modalContent.innerHTML = `
+            <h1>ONVIF 조회 결과</h1>
+            <div id="result-table-container">
+                <table id="result-table">
+                    <thead>
+                        <tr>
+                            <th>Profile</th>
+                            <th>Resolution</th>
+                            <th>Codec</th>
+                            <th>FPS</th>
+                            <th style="display:none;">RTSP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(item => `
+                            <tr onclick="selectRow(this)">
+                                <td>${item.name}</td>
+                                <td>${item.width}x${item.height}</td>
+                                <td>${item.codec}</td>
+                                <td>${item.fps}</td>
+                                <td style="display:none;">${item.rtsp}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="button-container">
+                <button id="prev-button">이전</button>
+                <button id="register-button">등록</button>
+            </div>
         `;
-        videoPlayersContainer.appendChild(player);
+
+        document.getElementById('prev-button').addEventListener('click', () => {
+            displayForm();
+        });
+
+        document.getElementById('register-button').addEventListener('click', async () => {
+            const selectedRow = document.querySelector('#result-table tr.selected');
+            if (selectedRow) {
+                const selectedData = {
+                    id: queryData.id,
+                    pw: queryData.pw,
+                    name: selectedRow.cells[0].textContent,
+                    onvif_result_address: selectedRow.cells[4].textContent,
+                    height: parseInt(selectedRow.cells[1].textContent.split('x')[1]),
+                    width: parseInt(selectedRow.cells[1].textContent.split('x')[0]),
+                    codec: selectedRow.cells[2].textContent,
+                    fps: parseFloat(selectedRow.cells[3].textContent),
+                    group: queryData.group // Make sure to include the group
+                };
+                console.log('Selected Data:', selectedData);
+                await registerChannel(selectedData);
+            } else {
+                alert('항목을 선택하세요.');
+            }
+        });
+
+        document.querySelectorAll('#result-table tbody tr').forEach(row => {
+            row.addEventListener('click', function() {
+                document.querySelectorAll('#result-table tbody tr').forEach(r => r.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        document.getElementById('modal').style.display = 'block';
     }
 
-    for (let i = currentVideos.length - 1; i >= rows * columns; i--) {
-        videoPlayersContainer.removeChild(currentVideos[i].parentNode);
-    }
+    async function registerChannel(data) {
+        console.log('Register Channel Data:', data);
+        try {
+            const response = await fetch('/channel_add/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([data])
+            });
 
-    const videoInfos = document.querySelectorAll('.video-info');
-    videoInfos.forEach(info => {
-        info.style.display = 'none';
-    });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-    fetch('/update_player_layout/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ layout: layout })
-    }).then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
+            const result = await response.json();
+            alert('채널 등록 성공: ' + JSON.stringify(result));
+            closeModal(); // Close the modal after successful registration
+            resetFormFields(); // Reset the form fields
+            addChannelButton.removeEventListener('click', openModal);
+            addChannelButton.addEventListener('click', openModal); // Reattach the event listener
+        } catch (error) {
+            alert('채널 등록 중 오류 발생: ' + error);
         }
-        return response.json();
-    }).then(data => {
-        console.log('Player layout updated:', data);
-    }).catch(error => {
-        console.error('Error updating player layout:', error);
-    });
-}
+    }
 
-// 예시: 레이아웃을 'img1'로 업데이트
-updateVideoPlayers('img1');
+    function resetFormFields() {
+        const form = document.getElementById('channel-form');
+        if (form) {
+            form.reset();
+        }
+        document.getElementById('ip').value = '';
+        document.getElementById('id').value = '';
+        document.getElementById('pass').value = '';
+        document.getElementById('group').value = '';
+    }
+
+    function displayForm() {
+        const modalContent = document.querySelector('.modal-content');
+        modalContent.innerHTML = `
+            <div class="tab-container">
+                <button class="tab-button active" id="onvif-tab">Onvif 등록</button>
+                <button class="tab-button" id="rtsp-tab">RTSP 등록</button>
+            </div>
+            <form id="channel-form">
+                <div class="form-group">
+                    <label for="ip">IP:</label>
+                    <input type="text" id="ip" name="ip" class="input-field">
+                </div>
+                <div class="form-group">
+                    <label for="id">ID:</label>
+                    <input type="text" id="id" name="id" class="input-field">
+                </div>
+                <div class="form-group">
+                    <label for="pass">Password:</label>
+                    <input type="password" id="pass" name="pass" class="input-field">
+                </div>
+                <div class="form-group">
+                    <label for="group">Group:</label>
+                    <select id="group" name="group" class="input-field">
+                        <option value="">Select group</option>
+                    </select>
+                    <button type="button" id="add-group" class="group-button">그룹 추가</button>
+                </div>
+                <div class="button-container">
+                    <button type="submit" class="action-button">조회</button>
+                    <button type="button" id="cancel-button" class="cancel-button">취소</button>
+                </div>
+            </form>
+        `;
+
+        document.getElementById('channel-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            queryChannel();
+        });
+
+        document.getElementById('cancel-button').addEventListener('click', () => {
+            document.getElementById('modal').style.display = 'none';
+        });
+
+        document.getElementById('onvif-tab').addEventListener('click', () => {
+            setActiveTab('onvif');
+        });
+
+        document.getElementById('rtsp-tab').addEventListener('click', () => {
+            setActiveTab('rtsp');
+        });
+
+        fetchGroups();
+    }
+});

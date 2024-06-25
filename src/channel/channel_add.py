@@ -28,7 +28,8 @@ async def channel_add(devices: List[ChannelAddstruct], logger, db_manager, ini_d
                 width=device.width,
                 codec=device.codec,
                 fps=device.fps,
-                create_time=current_time
+                create_time=current_time,
+                group=device.group,
             )
             logger.info(f"POST Router | Received RTSP data: {db_struct}")
             
@@ -36,6 +37,9 @@ async def channel_add(devices: List[ChannelAddstruct], logger, db_manager, ini_d
             db_struct.pw = encrypted_password
             
             logger.info(f"POST Router | device password encrypted : {db_struct.pw}")
+
+            db_manager.add_device(db_struct)
+            logger.info(f"POST Router | device added to database: {db_struct}")
 
             channel_info = {
                 'name': db_struct.name,

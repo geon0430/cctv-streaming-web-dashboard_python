@@ -72,7 +72,10 @@
 
     <div id="modal" class="modal">
         <div class="modal-content">
-            <h1>채널 등록</h1>
+            <div class="tab-container">
+                <button class="tab-button active" id="onvif-tab">Onvif 등록</button>
+                <button class="tab-button" id="rtsp-tab">RTSP 등록</button>
+            </div>
             <form id="channel-form">
                 <div class="form-group">
                     <label for="ip">IP:</label>
@@ -86,9 +89,32 @@
                     <label for="pass">Password:</label>
                     <input type="password" id="pass" name="pass" class="input-field">
                 </div>
+                <div class="form-group">
+                    <label for="group">Group:</label>
+                    <select id="group" name="group" class="input-field">
+                        <option value="">Select group</option>
+                    </select>
+                    <button type="button" id="add-group" class="group-button">그룹 추가</button>
+                </div>
                 <div class="button-container">
                     <button type="submit" class="action-button">조회</button>
                     <button type="button" id="cancel-button" class="cancel-button">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="group-modal" class="modal">
+        <div class="modal-content">
+            <h2>그룹 추가</h2>
+            <form id="group-form">
+                <div class="form-group">
+                    <label for="group-name">그룹명:</label>
+                    <input type="text" id="group-name" name="group-name" class="input-field">
+                </div>
+                <div class="button-container">
+                    <button type="button" id="save-group" class="action-button">추가</button>
+                    <button type="button" id="cancel-group" class="cancel-button">취소</button>
                 </div>
             </form>
         </div>

@@ -34,11 +34,14 @@ async def startup_event():
     connect_args_player = {"check_same_thread": False}
     player_engine = create_engine(player_database_connection_string, echo=False, connect_args=connect_args_player)
     
-    db_manager_channel = DBManager(channel_engine, KEY, ChannelDBStruct)
-    db_manager_player = DBManager(player_engine, KEY, VideoPlayerStruct)
+    db_manager_channel = DBManager(channel_engine, KEY, ChannelDBStruct, logger)
+    db_manager_player = DBManager(player_engine, KEY, VideoPlayerStruct, logger)
 
     SQLModel.metadata.create_all(channel_engine)
     SQLModel.metadata.create_all(player_engine)
+
+    max_player = ini_dict['CONFIG']['MAX_CHANNEL']
+    db_manager_player.initialize_players(max_player)
 
     logger.info("DASHBOARD STARTED")
 

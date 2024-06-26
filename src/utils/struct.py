@@ -12,6 +12,12 @@ class ONVIFstruct(BaseModel):
     pw: Optional[str]
     ip_address: Optional[str]
     
+class RTSPChannelStruct(BaseModel):
+    address: str
+    id: str
+    password: str
+    group: Optional[str]
+
 class ChannelAddstruct(BaseModel):
     id: str
     pw: Optional[str]
@@ -38,11 +44,9 @@ class ChannelDBStruct(SQLModel, table=True):
     group: str
     
 class VideoPlayerStruct(SQLModel, table=True):
-    idx: Optional[int] = Field(default=None, primary_key=True)
-    onvif_result_address: Optional[str]
-    height: int
-    width: int
-    fps: float
-    codec: str
-
-    
+    channel_id: Optional[int] = Field(default=None, primary_key=True)
+    onvif_result_address: Optional[str] = None
+    height: int = 0
+    width: int = 0
+    fps: float = 0.0
+    codec: str = ""

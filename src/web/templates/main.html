@@ -67,6 +67,12 @@
         </div>
         <div class="video-players" id="video-players-container">
             <!-- Video players will be dynamically inserted here -->
+            <div class="player" data-idx="1">
+                <video id="video1" width="100%" height="100%" autoplay muted></video>
+                <div class="video-info" id="info1"></div>
+                <div class="no-video-message" id="no-video1">No video data available</div>
+            </div>
+            <!-- Repeat for other players up to 16 -->
         </div>
     </div>
 
@@ -77,17 +83,33 @@
                 <button class="tab-button" id="rtsp-tab">RTSP 등록</button>
             </div>
             <form id="channel-form">
-                <div class="form-group">
-                    <label for="ip">IP:</label>
-                    <input type="text" id="ip" name="ip" class="input-field">
+                <div id="onvif-form">
+                    <div class="form-group">
+                        <label for="ip">IP:</label>
+                        <input type="text" id="ip" name="ip" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="id">ID:</label>
+                        <input type="text" id="id" name="id" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="pass">Password:</label>
+                        <input type="password" id="pass" name="pass" class="input-field">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="id">ID:</label>
-                    <input type="text" id="id" name="id" class="input-field">
-                </div>
-                <div class="form-group">
-                    <label for="pass">Password:</label>
-                    <input type="password" id="pass" name="pass" class="input-field">
+                <div id="rtsp-form" style="display:none;">
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <input type="text" id="address" name="address" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="id">ID:</label>
+                        <input type="text" id="rtsp-id" name="id" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="pass">Password:</label>
+                        <input type="password" id="rtsp-pass" name="pass" class="input-field">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="group">Group:</label>
@@ -132,5 +154,10 @@
     <script src="/static/js/tools/screen_split.js"></script>
     <script src="/static/js/tools/video_info.js"></script>
     <script src="/static/js/channel/channel_list.js"></script>
+    <script>
+    function selectRow(row) {
+        row.classList.add('selected');
+    }
+    </script>
 </body>
 </html>

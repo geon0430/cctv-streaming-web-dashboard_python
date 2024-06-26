@@ -13,8 +13,9 @@ function toggleDropdown() {
 function selectImage(imageId) {
     updateVideoPlayers(imageId);
     monitorSplitDropdown.style.display = 'none';
+    callSortVideoPlayerAPI(imageId);
     if (window.initializeVideoInfoState) {
-        window.initializeVideoInfoState();  // 비디오 정보 초기화 후 다시 불러오기
+        window.initializeVideoInfoState();  
     } else {
         console.error('initializeVideoInfoState function is not defined.');
     }
@@ -53,11 +54,33 @@ function updateVideoPlayers(layout) {
     for (let i = 1; i <= rows * columns; i++) {
         const player = document.createElement('div');
         player.className = `player player${i}`;
+        player.dataset.channelId = i;  // Set data-channel-id attribute
         player.innerHTML = `
             <video id="video${i}" width="100%" height="100%" autoplay muted></video>
             <div class="video-info" id="info${i}"></div>
+            <div class="no-video-message" id="no-video${i}" style="display:none;">No video data available</div>
         `;
         videoPlayersContainer.appendChild(player);
+    }
+}
+
+async function callSortVideoPlayerAPI(layout) {
+    try {
+        const response = await fetch('/sort_player_layout/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ layout }),
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to update player layout');
+        }
+        
+        const result = await response.json();
+    } catch (error) {
+        console.error('Error:', error);
     }
 }
 

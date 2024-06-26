@@ -34,14 +34,33 @@ function openFullscreen(element) {
 }
 
 function closeFullscreen() {
-    if (document.exitFullscreen) {
-        document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) { 
-        document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) { 
-        document.msExitFullscreen();
+    if (document.fullscreenElement) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().then(() => {
+                isFullscreen = false;
+            }).catch((err) => {
+                console.error(`Failed to exit fullscreen mode: ${err.message}`);
+            });
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen().then(() => {
+                isFullscreen = false;
+            }).catch((err) => {
+                console.error(`Failed to exit fullscreen mode: ${err.message}`);
+            });
+        } else if (document.webkitExitFullscreen) { 
+            document.webkitExitFullscreen().then(() => {
+                isFullscreen = false;
+            }).catch((err) => {
+                console.error(`Failed to exit fullscreen mode: ${err.message}`);
+            });
+        } else if (document.msExitFullscreen) { 
+            document.msExitFullscreen().then(() => {
+                isFullscreen = false;
+            }).catch((err) => {
+                console.error(`Failed to exit fullscreen mode: ${err.message}`);
+            });
+        }
+    } else {
+        console.warn('Not in fullscreen mode.');
     }
-    isFullscreen = false;
 }

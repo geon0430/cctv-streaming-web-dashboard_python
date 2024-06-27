@@ -20,16 +20,16 @@ class DBManager:
 
     def remove_device(self, device_idx: int) -> bool:
         with Session(self.engine) as session:
-            instance = session.exec(select(self.struct_type).where(self.struct_type.channel_id == device_idx)).first()
+            instance = session.exec(select(self.struct_type).where(self.struct_type.idx == device_idx)).first()
             if instance:
                 session.delete(instance)
                 session.commit()
                 return True
             return False
 
-    def update_device_by_channel_id(self, channel_id: int, new_data: dict) -> bool:
+    def update_device_by_channel_id(self, idx: int, new_data: dict) -> bool:
         with Session(self.engine) as session:
-            instance = session.exec(select(self.struct_type).where(self.struct_type.channel_id == channel_id)).first()
+            instance = session.exec(select(self.struct_type).where(self.struct_type.idx == idx)).first()
             if instance:
                 for key, value in new_data.items():
                     setattr(instance, key, value)
@@ -50,7 +50,7 @@ class DBManager:
 
     def get_device_by_idx(self, idx: int):
         with Session(self.engine) as session:
-            return session.exec(select(self.struct_type).where(self.struct_type.channel_id == idx)).first()
+            return session.exec(select(self.struct_type).where(self.struct_type.idx == idx)).first()
 
     def initialize_players(self, max_player: int):
         created_players = []

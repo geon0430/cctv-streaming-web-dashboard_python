@@ -19,9 +19,7 @@ class RTSPChannelStruct(BaseModel):
     group: Optional[str]
 
 class ChannelAddstruct(BaseModel):
-    id: str
-    pw: Optional[str]
-    name: str
+    ip: str
     onvif_result_address: Optional[str]
     height: int
     width: int
@@ -32,9 +30,7 @@ class ChannelAddstruct(BaseModel):
 
 class ChannelDBStruct(SQLModel, table=True):
     idx: Optional[int] = Field(default=None, primary_key=True)
-    id: str
-    pw: Optional[str]
-    name: str
+    ip : str
     onvif_result_address: Optional[str]
     height: int
     width: int

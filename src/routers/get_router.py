@@ -23,6 +23,7 @@ async def get_video_info(player_idx: int, player_db=Depends(get_player_db), logg
     try:
         fps, codec, width, height, bit_rate = ffprobe(player.onvif_result_address, logger)
         return {
+            "idx": player_idx.idx,
             "fps": fps,
             "codec": codec,
             "width": width,
@@ -32,3 +33,27 @@ async def get_video_info(player_idx: int, player_db=Depends(get_player_db), logg
         }
     except RuntimeError as e:
         return {"error": True, "message": str(e)}
+
+
+@get_router.get("/get_channel_db/", status_code=status.HTTP_200_OK)
+async def get_channel_db_endpoint(channel_db=Depends(get_channel_db), logger=Depends(get_logger)):
+    try:
+        channels = channel_db.get_all_devices()
+        logger.info(f"Get_Router | Channels fetched:  {channels}")
+        sorted_channels = sorted(channels, key=lambda c: c.onvif_result_address)  
+        return [
+            {
+                "idx" : c.idx,
+                "ip": c.ip,
+                "height": c.height,
+                "width": c.width,
+                "fps": c.fps,
+                "codec": c.codec,
+                "group": c.group,
+                "onvif_result_address": c.onvif_result_address
+            }
+            for c in sorted_channels
+        ]
+    except Exception as e:
+        logger.error(f"Get_Router | ERROR | Exception occurred during channel fetch: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to fetch channels")

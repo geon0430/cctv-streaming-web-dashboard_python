@@ -19,7 +19,49 @@ body, html {
     flex-direction: column;
     justify-content: space-between;
     border-right: 2px solid #000;
-    padding: 20px;
     box-sizing: border-box;
     height: 100%;
+    width: 100%;
+}
+
+.channel-info {
+    width: 100%;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    padding: 20px; 
+    margin-top: 7%;
+    margin-bottom: 7%;
+}
+
+.channel-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    height: 6%;
+    margin-bottom: 4%;
+    padding: 1%;
+}
+
+.button-container button {
+    padding: 10px;
+    border: none;
+    background-color: #007BFF;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    width: 48%;
+}
+
+.button-container button:hover {
+    background-color: #0056b3;
 }

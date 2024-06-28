@@ -5,22 +5,25 @@ from utils.request import get_logger
 from rtsp import ffprobe
 
 async def rtsp_channel_search(device: RTSPChannelStruct, logger=Depends(get_logger)):
-    try:
-        channels = channel_db.get_all_devices()
-        logger.info(f"Get_Router | Channels fetched:  {channels}")
-        sorted_channels = sorted(channels, key=lambda c: c.onvif_result_address)  
-        return [
-            {
-                "ip": c.ip,
-                "height": c.height,
-                "width": c.width,
-                "fps": c.fps,
-                "codec": c.codec,
-                "group": c.group,
-                "onvif_result_address": c.onvif_result_address
+    logger.info(f"POST Router | rtsp_channel_add | Received RTSP data: {device}")   
+    address_without_scheme = device.address.split("//")[1]
+    ip_address = address_without_scheme.split('/')[0]
+    rtsp_url = f"rtsp://{device.id}:{device.password}@{address_without_scheme}"
+    logger.info("POST Router | starting type check success")
+    try:    
+        fps, codec, width, height = ffprobe(rtsp_url, logger)
+        
+        data = {
+                "ip": ip_address,
+                "onvif_result_address": rtsp_url,
+                "fps": fps,
+                "codec": codec,
+                "width": width,
+                "height": height,
+                "group": device.group,
             }
-            for c in sorted_channels
-        ]
+        logger.info(f"POST Router | rtsp_channel_add | return data: {data}")
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content={"detail": "success","data": data})
     except Exception as e:
-        logger.error(f"Get_Router | ERROR | Exception occurred during channel fetch: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to fetch channels")
+        logger.error(f"RTSP Channel Add | ERROR | {str(e)}")
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": str(e)})

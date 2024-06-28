@@ -65,12 +65,16 @@ class DBManager:
         if created_players:
             self.logger.info(f"Players with channel_id {created_players} created")
 
-    def update_player(self, player_number: int, channel_id: Optional[int]):
+    def update_player(self, player_number: int, channel_info: dict):
         with Session(self.engine) as session:
             player = session.exec(select(VideoPlayerStruct).where(VideoPlayerStruct.channel_id == player_number)).first()
             if player:
-                player.channel_id = channel_id
+                for key, value in channel_info.items():
+                    setattr(player, key, value)
                 session.commit()
+                self.logger.info(f"Updated player {player_number} with channel info: {channel_info}")
+            else:
+                self.logger.error(f"Player {player_number} not found")
 
     def get_player_by_number(self, player_number: int):
         with Session(self.engine) as session:
@@ -86,3 +90,9 @@ class DBManager:
             result = session.exec(query).all()
             groups = list(set(group for group in result if group and group.strip()))
         return groups
+
+    def get_all_channel_ids(self):
+        with Session(self.engine) as session:
+            query = select(VideoPlayerStruct.channel_id)
+            result = session.exec(query).all()
+            return [r[0] for r in result]

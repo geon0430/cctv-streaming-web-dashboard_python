@@ -61,3 +61,23 @@ async def sort_player_layout(request: Request, logger=Depends(get_logger), playe
     logger.info(f"POST Router | sort_player_layout | Inactive Players: {inactive_ranges}")
 
     return JSONResponse(content={"detail": "Player layout updated successfully"})
+
+
+async def get_video_info(player_idx: int, player_db=Depends(get_player_db), logger=Depends(get_logger)):
+    player = player_db.get_device_by_idx(player_idx)
+    if not player or not player.onvif_result_address:
+        return {"error": True, "message": "No video data available"}
+    
+    try:
+        fps, codec, width, height, bit_rate = ffprobe(player.onvif_result_address, logger)
+        return {
+            "idx": player.idx,
+            "fps": fps,
+            "codec": codec,
+            "width": width,
+            "height": height,
+            "bit_rate": bit_rate,
+            "status": "good"
+        }
+    except RuntimeError as e:
+        return {"error": True, "message": str(e)}

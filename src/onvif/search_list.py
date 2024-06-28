@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from typing import List
 from utils import ONVIFstruct, onvif_list_type_check, port_open_check
 from onvif import get_onvif_rtsp_address_list
+from rtsp import ffprobe
 
 async def search_onvif_list(devices: List[ONVIFstruct], logger) -> JSONResponse:
     start_time = datetime.now()
@@ -48,3 +49,22 @@ async def search_onvif_list(devices: List[ONVIFstruct], logger) -> JSONResponse:
             
     logger.info("POST Router | search_onvif_list | ONVIF Data send successfully")
     return JSONResponse(status_code=200, content={"detail": "success", "data": results})
+
+async def get_video_info(player_idx: int, player_db, logger):
+    player = player_db.get_device_by_idx(player_idx)
+    if not player or not player.onvif_result_address:
+        return {"error": True, "message": "No video data available"}
+    
+    try:
+        fps, codec, width, height, bit_rate = ffprobe(player.onvif_result_address, logger)
+        return {
+            "idx": player.idx,
+            "fps": fps,
+            "codec": codec,
+            "width": width,
+            "height": height,
+            "bit_rate": bit_rate,
+            "status": "good"
+        }
+    except RuntimeError as e:
+        return {"error": True, "message": str(e)}

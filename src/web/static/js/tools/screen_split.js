@@ -142,4 +142,3 @@ async function postDeviceToPlayer(device, playerIdx) {
         console.error('Error during POST request:', error);
     }
 }
-

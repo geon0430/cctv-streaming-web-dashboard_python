@@ -19,12 +19,12 @@
 .channel-icon {
     width: 100%;
     height: auto;
-    user-select: none; 
+    user-select: none;
     transition: filter 0.2s;
 }
 
 .channel-icon:hover {
-    filter: brightness(1.2); 
+    filter: brightness(1.2);
 }
 
 .icon-wrapper {
@@ -118,5 +118,5 @@
     padding: 10px;
     border-radius: 5px;
     font-size: 14px;
-    display: none; /* Initially hidden */
+    display: none; 
 }

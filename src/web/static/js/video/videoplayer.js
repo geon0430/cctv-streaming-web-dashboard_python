@@ -1,3 +1,45 @@
+async function connectWebSocket(playerIdx) {
+    const videoElement = document.getElementById(`video${playerIdx}`);
+    const ws = new WebSocket(`ws://${window.location.hostname}:13000/ws/${playerIdx}`);
+    let pc = new RTCPeerConnection();
+
+    pc.ontrack = function(event) {
+        videoElement.srcObject = event.streams[0];
+        console.log('Received remote track:', event.streams[0]);
+    };
+
+    ws.onopen = async () => {
+        console.log('WebSocket connection opened');
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        console.log('Created offer:', pc.localDescription);
+
+        ws.send(JSON.stringify({
+            'sdp': pc.localDescription.sdp,
+            'type': pc.localDescription.type
+        }));
+        console.log('Sent offer:', pc.localDescription);
+    };
+
+    ws.onmessage = async (event) => {
+        const message = JSON.parse(event.data);
+        console.log('Received message:', message);
+        if (message.type === 'answer') {
+            const remoteDesc = new RTCSessionDescription(message);
+            await pc.setRemoteDescription(remoteDesc);
+            console.log('Set remote description:', remoteDesc);
+        }
+    };
+
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+        console.log('WebSocket connection closed');
+    };
+}
+
 function itemClicked(event, device) {
     const items = document.querySelectorAll('#file-list li');
     items.forEach(item => {
@@ -29,10 +71,12 @@ async function drop(event) {
     const playerIdx = event.currentTarget.dataset.idx;
     console.log('Dropped device:', device, 'on player:', playerIdx);
     await postDeviceToPlayer(device, playerIdx);
+    connectWebSocket(playerIdx);
 }
 
 async function postDeviceToPlayer(device, playerIdx) {
     try {
+        console.log('Sending POST request with device:', device);
         const response = await fetch(`/video_player/${playerIdx}`, {
             method: 'POST',
             headers: {
@@ -51,7 +95,10 @@ async function postDeviceToPlayer(device, playerIdx) {
     }
 }
 
-// Add event listeners
+function removeChannel() {
+    console.log('Remove channel functionality not yet implemented.');
+}
+
 document.getElementById('remove-channel').addEventListener('click', removeChannel);
 document.getElementById('search-bar').addEventListener('input', function () {
     const searchTerm = this.value.toLowerCase();

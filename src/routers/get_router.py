@@ -9,11 +9,9 @@ get_router = APIRouter()
 async def get_video_info_endpoint(player_idx: int, player_db=Depends(get_player_db), logger=Depends(get_logger)):
     return await get_video_info(player_idx, player_db, logger)
 
-
 @get_router.get("/get_groups/", status_code=status.HTTP_200_OK)
 async def get_groups_endpoint(channel_db = Depends(get_channel_db), logger = Depends(get_logger)):
     return await get_group(channel_db, logger)
-
 
 @get_router.get("/get_channel_db/", status_code=status.HTTP_200_OK)
 async def get_channel_db_endpoint(channel_db=Depends(get_channel_db), logger=Depends(get_logger)):

@@ -74,7 +74,7 @@
 }
 
 .action-button {
-    background-color: #008CBA;
+    background-color: #007BFF;
     color: white;
     padding: 10px 20px;
     margin: 10px 0;
@@ -83,5 +83,5 @@
 }
 
 .action-button:hover {
-    background-color: #007B9E;
+    background-color: #007BFF;
 }

@@ -1,6 +1,3 @@
-const style = document.createElement('style');
-document.head.append(style);
-
 function selectPlayer(playerId) {
     const players = document.querySelectorAll('.player');
     players.forEach(player => player.classList.remove('selected'));
@@ -12,6 +9,16 @@ function selectPlayer(playerId) {
 
 function updateVideoPlayers(layout) {
     const videoPlayersContainer = document.getElementById('video-players-container');
+    const currentPlayers = Array.from(videoPlayersContainer.children);
+    const currentStreams = {};
+
+    currentPlayers.forEach(player => {
+        const playerIdx = player.dataset.idx;
+        if (activeStreams[playerIdx]) {
+            currentStreams[playerIdx] = activeStreams[playerIdx];
+        }
+    });
+
     videoPlayersContainer.innerHTML = '';
 
     let rows, columns;
@@ -54,27 +61,39 @@ function updateVideoPlayers(layout) {
             <div class="no-video-message" id="no-video${i}" style="display:none;">No video data available</div>
         `;
         videoPlayersContainer.appendChild(player);
+
+        if (currentStreams[i]) {
+            activeStreams[i] = currentStreams[i];
+            connectWebSocket(i, currentStreams[i].device);  // 기존 스트림 재연결
+        }
     }
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
     updateVideoPlayers('img1');
+
+    const monitorSplitIcon = document.getElementById('monitor-split-icon');
+    const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
+
+    monitorSplitIcon.addEventListener('click', (event) => {
+        toggleDropdown(monitorSplitDropdown);
+        event.stopPropagation();
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!monitorSplitDropdown.contains(event.target) && !monitorSplitIcon.contains(event.target)) {
+            monitorSplitDropdown.style.display = 'none';
+        }
+    });
 });
 
-const monitorSplitIcon = document.getElementById('monitor-split-icon');
-const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
-
-monitorSplitIcon.addEventListener('click', (event) => {
-    toggleDropdown();
-    event.stopPropagation();
-});
-
-function toggleDropdown() {
-    monitorSplitDropdown.style.display = monitorSplitDropdown.style.display === 'block' ? 'none' : 'block';
+function toggleDropdown(dropdown) {
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 }
 
 function selectImage(imageId) {
     updateVideoPlayers(imageId);
+    const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
     monitorSplitDropdown.style.display = 'none';
     callSortVideoPlayerAPI(imageId);
     if (window.initializeVideoInfoState) {
@@ -103,12 +122,6 @@ async function callSortVideoPlayerAPI(layout) {
         console.error('Error:', error);
     }
 }
-
-document.addEventListener('click', (event) => {
-    if (!monitorSplitDropdown.contains(event.target) && !monitorSplitIcon.contains(event.target)) {
-        monitorSplitDropdown.style.display = 'none';
-    }
-});
 
 function allowDrop(event) {
     event.preventDefault();

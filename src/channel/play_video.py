@@ -5,12 +5,13 @@ import signal
 import sys
 sys.path.append("../")
 from rtsp import FFmpegRead
+from fastapi import WebSocket
 
 async def shutdown(signal, loop, stop_event, logger):
     logger.info(f"Received exit signal {signal.name}...")
     stop_event.set()
 
-async def play_video(read_queue: asyncio.Queue, stop_event: asyncio.Event, channel_info: Dict, logger: logging.Logger):
+async def play_video(websocket: WebSocket, stop_event: asyncio.Event, channel_info: Dict, logger: logging.Logger):
     url = channel_info['onvif_result_address']
     height = channel_info['height']
     width = channel_info['width']
@@ -28,7 +29,8 @@ async def play_video(read_queue: asyncio.Queue, stop_event: asyncio.Event, chann
         height,
         width,
         gpu,
-        read_queue,
+        websocket,
         stop_event,
         logger,
     )
+

@@ -43,7 +43,7 @@ async def search_onvif_list(devices: List[ONVIFstruct], logger) -> JSONResponse:
         finally:
             elapsed_time = (datetime.now() - start_time).total_seconds()
 
-            if elapsed_time > 2.0:
+            if elapsed_time > 10.0:
                 logger.error("POST Router | ERROR | search_onvif_list | ONVIF data retrieval took too long.")
                 raise HTTPException(status_code=status.HTTP_408_REQUEST_TIMEOUT, detail="Request timeout due to long processing time")
             

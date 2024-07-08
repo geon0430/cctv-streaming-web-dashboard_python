@@ -9,7 +9,10 @@ function selectPlayer(playerId) {
 
 function updateVideoPlayers(layout) {
     const videoPlayersContainer = document.getElementById('video-players-container');
-    const currentPlayers = Array.from(videoPlayersContainer.children);
+    const playersGrid = videoPlayersContainer.querySelector('.players-grid') || document.createElement('div');
+    playersGrid.className = 'players-grid';
+
+    const currentPlayers = Array.from(playersGrid.children);
     const currentStreams = {};
 
     currentPlayers.forEach(player => {
@@ -18,8 +21,6 @@ function updateVideoPlayers(layout) {
             currentStreams[playerIdx] = activeStreams[playerIdx];
         }
     });
-
-    videoPlayersContainer.innerHTML = '';
 
     let rows, columns;
     switch (layout) {
@@ -44,29 +45,41 @@ function updateVideoPlayers(layout) {
             columns = 1;
     }
 
-    videoPlayersContainer.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-    videoPlayersContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+    playersGrid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    playersGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
 
     for (let i = 1; i <= rows * columns; i++) {
-        const player = document.createElement('div');
-        player.className = `player player${i}`;
-        player.dataset.idx = i;
-        player.id = `player${i}`;
-        player.ondrop = (event) => drop(event);
-        player.ondragover = (event) => allowDrop(event);
-        player.onclick = () => selectPlayer(player.id);
-        player.innerHTML = `
-            <video id="video${i}" width="100%" height="100%" autoplay muted></video>
-            <div class="video-info" id="info${i}"></div>
-            <div class="no-video-message" id="no-video${i}" style="display:none;">No video data available</div>
-        `;
-        videoPlayersContainer.appendChild(player);
+        let player = playersGrid.querySelector(`#player${i}`);
+        if (!player) {
+            player = document.createElement('div');
+            player.className = `player player${i}`;
+            player.dataset.idx = i;
+            player.id = `player${i}`;
+            player.ondrop = (event) => drop(event);
+            player.ondragover = (event) => allowDrop(event);
+            player.onclick = () => selectPlayer(player.id);
+            player.innerHTML = `
+                <video id="video${i}" width="100%" height="100%" autoplay muted></video>
+                <div class="video-info" id="info${i}"></div>
+                <div class="no-video-message" id="no-video${i}" style="display:none;">No video data available</div>
+            `;
+            playersGrid.appendChild(player);
 
-        if (currentStreams[i]) {
-            activeStreams[i] = currentStreams[i];
-            connectWebSocket(i, currentStreams[i].device);  // 기존 스트림 재연결
+            if (currentStreams[i]) {
+                activeStreams[i] = currentStreams[i];
+                connectWebSocket(i, currentStreams[i].device);
+            }
         }
     }
+
+    Array.from(playersGrid.children).forEach(player => {
+        if (parseInt(player.dataset.idx, 10) > rows * columns) {
+            player.remove();
+        }
+    });
+
+    videoPlayersContainer.innerHTML = '';
+    videoPlayersContainer.appendChild(playersGrid);
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -118,10 +131,36 @@ async function callSortVideoPlayerAPI(layout) {
         }
         
         const result = await response.json();
+        const { active_players, inactive_players } = result;
+
+        for (const playerId of inactive_players) {
+            await deletePlayer(playerId);
+        }
     } catch (error) {
         console.error('Error:', error);
     }
 }
+
+async function deletePlayer(playerId) {
+    try {
+        const response = await fetch(`/delete_player/${playerId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete player');
+        }
+
+        const result = await response.json();
+        console.log(result.detail);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
 
 function allowDrop(event) {
     event.preventDefault();

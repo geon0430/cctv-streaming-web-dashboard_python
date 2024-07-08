@@ -1,35 +1,9 @@
-from fastapi import Request, Depends
+from fastapi import  Request, Depends
 from fastapi.responses import JSONResponse
-from utils.request import get_logger, get_player_db, get_ini_dict
+from utils.request import get_logger, get_player_db, get_ini_dict, get_channel_db
 from rtsp import ffprobe
 
-def format_ranges(numbers):
-    if not numbers:
-        return ""
-    
-    ranges = []
-    start = numbers[0]
-    end = numbers[0]
-
-    for num in numbers[1:]:
-        if num == end + 1:
-            end = num
-        else:
-            if start == end:
-                ranges.append(f"{start}")
-            else:
-                ranges.append(f"{start}-{end}")
-            start = num
-            end = num
-
-    if start == end:
-        ranges.append(f"{start}")
-    else:
-        ranges.append(f"{start}-{end}")
-
-    return ", ".join(ranges)
-
-async def sort_player_layout(request: Request, logger=Depends(get_logger), player_db=Depends(get_player_db), ini_dict=Depends(get_ini_dict)):
+async def sort_player_layout(request: Request, logger=Depends(get_logger), player_db=Depends(get_player_db), ini_dict=Depends(get_ini_dict), channel_db=Depends(get_channel_db)):
     data = await request.json()
     layout = data.get("layout")
     
@@ -61,8 +35,11 @@ async def sort_player_layout(request: Request, logger=Depends(get_logger), playe
     logger.info(f"POST Router | sort_player_layout | Active Players: {active_ranges}")
     logger.info(f"POST Router | sort_player_layout | Inactive Players: {inactive_ranges}")
 
-    return JSONResponse(content={"detail": "Player layout updated successfully"})
-
+    return JSONResponse(content={
+        "detail": "Player layout updated successfully", 
+        "active_players": active_channel_ids, 
+        "inactive_players": inactive_channel_ids
+    })
 
 async def get_video_info(player_idx: int, player_db=Depends(get_player_db), logger=Depends(get_logger)):
     player = player_db.get_device_by_idx(player_idx)
@@ -82,3 +59,30 @@ async def get_video_info(player_idx: int, player_db=Depends(get_player_db), logg
         }
     except RuntimeError as e:
         return {"error": True, "message": str(e)}
+    
+
+def format_ranges(numbers):
+    if not numbers:
+        return ""
+    
+    ranges = []
+    start = numbers[0]
+    end = numbers[0]
+
+    for num in numbers[1:]:
+        if num == end + 1:
+            end = num
+        else:
+            if start == end:
+                ranges.append(f"{start}")
+            else:
+                ranges.append(f"{start}-{end}")
+            start = num
+            end = num
+
+    if start == end:
+        ranges.append(f"{start}")
+    else:
+        ranges.append(f"{start}-{end}")
+
+    return ", ".join(ranges)

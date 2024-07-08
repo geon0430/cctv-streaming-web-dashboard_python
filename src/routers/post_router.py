@@ -1,17 +1,15 @@
 from fastapi import APIRouter, UploadFile, File, status, Depends, Request, WebSocket
-from typing import List, Dict
+from starlette.requests import HTTPConnection
+from typing import List
 import json
-from aiortc import RTCPeerConnection, RTCSessionDescription
 from fastapi.responses import JSONResponse
 import sys
-import asyncio
 sys.path.append("../")
-from utils import ONVIFstruct, ChannelAddstruct, RTSPChannelStruct, ChannelDBStruct, setup_logger, ConfigManager
+from utils import ONVIFstruct, ChannelAddstruct, RTSPChannelStruct
 from utils.request import get_logger, get_channel_db, get_ini_dict, get_player_db
 from onvif import search_onvif_list
 from tools import save_screenshot
 from channel import channel_add, sort_player_layout, rtsp_channel_search, play_video
-from webrtc import run
 
 post_router = APIRouter()
 
@@ -36,71 +34,9 @@ async def rtsp_channel_add(device: RTSPChannelStruct, logger=Depends(get_logger)
     return await rtsp_channel_search(device, logger)
 
 @post_router.websocket("/ws/{player_idx}")
-async def websocket_endpoint(websocket: WebSocket, player_idx: int):
-    api_ini_path = "/webrtc_python/src/config.ini"
-    api_config = ConfigManager(api_ini_path)
-    ini_dict = api_config.get_config_dict()
-    logger = setup_logger(ini_dict)
-    logger.info(f"WebSocket connection attempt for player {player_idx}")
-    await websocket.accept()
-    logger.info(f"WebSocket connection accepted for player {player_idx}")
+async def websocket_proxy(websocket: WebSocket, player_idx: int):
+    conn = HTTPConnection(websocket.scope)
+    player_db = get_player_db(conn)
+    logger = get_logger(conn)
 
-    stop_event = asyncio.Event()
-    send_task = None
-
-    async def on_offer(offer):
-        pc = RTCPeerConnection()
-        try:
-            local_description = await run(pc, offer, None, logger)
-            if not local_description:
-                logger.error("run function did not return a valid local_description")
-            else:
-                logger.info(f"Generated answer: {local_description.sdp}")
-            return local_description
-        except Exception as e:
-            logger.error(f"Error in on_offer: {e}")
-            return None
-
-    try:
-        while True:
-            data = await websocket.receive_text()
-            message = json.loads(data)
-            logger.info(f"Received WebSocket message: {message}")
-
-            if message['type'] == 'assign_device':
-                device = message['device']
-                logger.info(f"Assigning device {device['idx']} to player {player_idx}")
-                channel_info = {
-                    'onvif_result_address': device['onvif_result_address'],
-                    'height': device['height'],
-                    'width': device['width'],
-                    'fps': device['fps'],
-                    'codec': device['codec']
-                }
-                if send_task:
-                    stop_event.set()
-                    await send_task
-                stop_event.clear()
-                send_task = asyncio.create_task(play_video(websocket, stop_event, channel_info, logger))
-
-            elif message['type'] == 'offer':
-                offer = RTCSessionDescription(sdp=message['sdp'], type=message['type'])
-                answer = await on_offer(offer)
-                if answer:
-                    await websocket.send_text(json.dumps({
-                        'sdp': answer.sdp,
-                        'type': answer.type
-                    }))
-                    logger.info(f"Sent WebSocket answer: {answer}")
-                else:
-                    logger.error("No valid answer generated for the offer")
-
-    except Exception as e:
-        logger.error(f"Error in websocket: {e}")
-
-    finally:
-        stop_event.set()
-        if send_task:
-            send_task.cancel()
-        await websocket.close()
-        logger.info("Closed WebSocket and stopped RTSP reading")
+    await play_video(websocket, player_idx, player_db, logger)

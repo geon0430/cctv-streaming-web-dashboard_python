@@ -1,10 +1,10 @@
-const activeStreams = {};  // 현재 활성 스트림을 저장할 객체
+const activeStreams = window.activeStreams || {};  
 
 async function connectWebSocket(playerIdx, device) {
     const videoElement = document.getElementById(`video${playerIdx}`);
     const canvasElement = document.createElement('canvas');
     const ctx = canvasElement.getContext('2d');
-    videoElement.style.display = 'none'; // Hide the video element
+    videoElement.style.display = 'none';
 
     if (!videoElement) {
         console.error(`Video element with ID video${playerIdx} not found.`);
@@ -16,7 +16,7 @@ async function connectWebSocket(playerIdx, device) {
 
     let ws;
     if (activeStreams[playerIdx] && activeStreams[playerIdx].ws) {
-        ws = activeStreams[playerIdx].ws;  // 기존 WebSocket 연결 재사용
+        ws = activeStreams[playerIdx].ws; 
     } else {
         ws = new WebSocket(`ws://${window.location.hostname}:13000/ws/${playerIdx}`);
         ws.binaryType = 'arraybuffer';
@@ -56,7 +56,7 @@ async function connectWebSocket(playerIdx, device) {
         };
     }
 
-    activeStreams[playerIdx] = { ws, device };  // 활성 스트림 저장 또는 업데이트
+    activeStreams[playerIdx] = { ws, device };  
 }
 
 function itemClicked(event, device) {

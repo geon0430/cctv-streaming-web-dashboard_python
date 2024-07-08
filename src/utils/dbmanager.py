@@ -19,18 +19,14 @@ class DBManager:
             session.commit()
             session.refresh(device)
 
-    def remove_device(self, device_idx: int) -> bool:
+    def update_entry(self, entry: SQLModel):
         with Session(self.engine) as session:
-            instance = session.exec(select(self.struct_type).where(self.struct_type.idx == device_idx)).first()
-            if instance:
-                session.delete(instance)
-                session.commit()
-                return True
-            return False
+            session.add(entry)
+            session.commit()
 
     def update_device_by_channel_id(self, idx: int, new_data: dict) -> bool:
         with Session(self.engine) as session:
-            instance = session.exec(select(self.struct_type).where(self.struct_type.idx == idx)).first()
+            instance = session.exec(select(self.struct_type).where(self.struct_type.channel_id == idx)).first()
             if instance:
                 for key, value in new_data.items():
                     setattr(instance, key, value)
@@ -57,7 +53,7 @@ class DBManager:
     def get_device_by_idx(self, idx: int):
         try:
             with Session(self.engine) as session:
-                return session.exec(select(self.struct_type).where(self.struct_type.idx == idx)).first()
+                return session.exec(select(self.struct_type).where(self.struct_type.channel_id == idx)).first()
         except Exception as e:
             self.logger.error(f"Error in get_device_by_idx: {str(e)}")
             self.logger.error(traceback.format_exc())

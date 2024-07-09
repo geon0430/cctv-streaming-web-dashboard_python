@@ -71,7 +71,7 @@ function updateVideoPlayers(layout) {
             }
         }
     }
-
+    
     Array.from(playersGrid.children).forEach(player => {
         if (parseInt(player.dataset.idx, 10) > rows * columns) {
             player.remove();
@@ -83,8 +83,7 @@ function updateVideoPlayers(layout) {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    updateVideoPlayers('img1');
-
+    selectImage('img1');  
     const monitorSplitIcon = document.getElementById('monitor-split-icon');
     const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
 
@@ -105,10 +104,9 @@ function toggleDropdown(dropdown) {
 }
 
 function selectImage(imageId) {
-    updateVideoPlayers(imageId);
+    callSortVideoPlayerAPI(imageId);
     const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
     monitorSplitDropdown.style.display = 'none';
-    callSortVideoPlayerAPI(imageId);
     if (window.initializeVideoInfoState) {
         window.initializeVideoInfoState();  
     } else {
@@ -136,6 +134,8 @@ async function callSortVideoPlayerAPI(layout) {
         for (const playerId of inactive_players) {
             await deletePlayer(playerId);
         }
+
+        updateVideoPlayers(layout);
     } catch (error) {
         console.error('Error:', error);
     }
@@ -160,7 +160,6 @@ async function deletePlayer(playerId) {
         console.error('Error:', error);
     }
 }
-
 
 function allowDrop(event) {
     event.preventDefault();
@@ -194,3 +193,18 @@ async function postDeviceToPlayer(device, playerIdx) {
         console.error('Error during POST request:', error);
     }
 }
+
+async function fetchChannelList() {
+    try {
+        const response = await fetch('/channel_list/');
+        if (!response.ok) {
+            throw new Error('Failed to fetch channel list');
+        }
+        const channels = await response.json();
+    } catch (error) {
+        console.error('Error fetching channel list:', error);
+    }
+}
+
+window.fetchChannelList = fetchChannelList;
+window.onload = fetchChannelList;

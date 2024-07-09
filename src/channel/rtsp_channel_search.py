@@ -2,7 +2,7 @@ from fastapi import Depends, status
 from fastapi.responses import JSONResponse
 from utils import RTSPChannelStruct
 from utils.request import get_logger
-from rtsp import ffprobe
+from videoplayer import ffprobe
 
 async def rtsp_channel_search(device: RTSPChannelStruct, logger=Depends(get_logger)):
     logger.info(f"POST Router | rtsp_channel_add | Received RTSP data: {device}")   

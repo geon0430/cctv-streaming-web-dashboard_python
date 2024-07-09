@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from typing import List
 from utils import ONVIFstruct, onvif_list_type_check, port_open_check
 from onvif import get_onvif_rtsp_address_list
-from rtsp import ffprobe
+from videoplayer import ffprobe
 
 async def search_onvif_list(devices: List[ONVIFstruct], logger) -> JSONResponse:
     start_time = datetime.now()

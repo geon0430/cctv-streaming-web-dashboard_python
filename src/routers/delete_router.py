@@ -5,7 +5,7 @@ sys.path.append("../")
 from utils.request import get_logger, get_channel_db, get_player_db
 from utils.struct import ChannelDBStruct
 from channel import channel_delete  
-from rtsp import VideoStreamer
+from videoplayer import VideoStreamer
 
 delete_router = APIRouter()
 

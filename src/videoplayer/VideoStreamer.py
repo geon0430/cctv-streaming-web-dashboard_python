@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import Dict, List
 from fastapi import WebSocket
-from rtsp import FFmpegRead
+from videoplayer import FFmpegRead
 
 class VideoStreamer:
     active_streams: Dict[int, "VideoStreamer"] = {}

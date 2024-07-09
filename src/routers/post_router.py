@@ -9,7 +9,8 @@ from utils import ONVIFstruct, ChannelAddstruct, RTSPChannelStruct
 from utils.request import get_logger, get_channel_db, get_ini_dict, get_player_db
 from onvif import search_onvif_list
 from tools import save_screenshot
-from channel import channel_add, sort_player_layout, rtsp_channel_search, play_video
+from videoplayer import play_video, sort_player_layout
+from channel import channel_add, rtsp_channel_search
 
 post_router = APIRouter()
 

@@ -8,7 +8,7 @@ from fastapi import WebSocket
 from aiortc import RTCSessionDescription
 from sqlalchemy.orm.exc import NoResultFound
 sys.path.append("../")
-from rtsp import  VideoStreamer
+from videoplayer import  VideoStreamer
 from utils import VideoPlayerStruct
 from webrtc import WebRTC
 

@@ -1,12 +1,16 @@
-from fastapi import  Request, Depends
+from fastapi import Request, Depends
 from fastapi.responses import JSONResponse
 from utils.request import get_logger, get_player_db, get_ini_dict, get_channel_db
-from rtsp import ffprobe
+from videoplayer import ffprobe
+
+previous_active_count = 0
 
 async def sort_player_layout(request: Request, logger=Depends(get_logger), player_db=Depends(get_player_db), ini_dict=Depends(get_ini_dict), channel_db=Depends(get_channel_db)):
+    global previous_active_count
+
     data = await request.json()
     layout = data.get("layout")
-    
+
     if layout == 'img1':
         num_players = 1
     elif layout == 'img2':
@@ -17,18 +21,24 @@ async def sort_player_layout(request: Request, logger=Depends(get_logger), playe
         num_players = 16
     else:
         num_players = 1
-    
-    all_players = player_db.get_all_devices()
-    all_players.sort(key=lambda p: p.channel_id)
-    
+
     logger.info(f"POST Router | sort_video_player | Change layout: {layout} -> {num_players}")
 
-    active_players = all_players[:num_players]
-    inactive_players = all_players[num_players:]
-    
+    all_players = player_db.get_all_devices()
+    all_players.sort(key=lambda p: p.channel_id)
+
+    if previous_active_count > num_players:
+        active_players = all_players[:num_players]
+        inactive_players = all_players[num_players:previous_active_count]
+    else:
+        active_players = all_players[:num_players]
+        inactive_players = all_players[num_players:previous_active_count]
+
+    previous_active_count = num_players
+
     active_channel_ids = [player.channel_id for player in active_players]
     inactive_channel_ids = [player.channel_id for player in inactive_players]
-    
+
     active_ranges = format_ranges(active_channel_ids)
     inactive_ranges = format_ranges(inactive_channel_ids)
 
@@ -36,8 +46,8 @@ async def sort_player_layout(request: Request, logger=Depends(get_logger), playe
     logger.info(f"POST Router | sort_player_layout | Inactive Players: {inactive_ranges}")
 
     return JSONResponse(content={
-        "detail": "Player layout updated successfully", 
-        "active_players": active_channel_ids, 
+        "detail": "Player layout updated successfully",
+        "active_players": active_channel_ids,
         "inactive_players": inactive_channel_ids
     })
 
@@ -45,7 +55,7 @@ async def get_video_info(player_idx: int, player_db=Depends(get_player_db), logg
     player = player_db.get_device_by_idx(player_idx)
     if not player or not player.onvif_result_address:
         return {"error": True, "message": "No video data available"}
-    
+
     try:
         fps, codec, width, height, bit_rate = ffprobe(player.onvif_result_address, logger)
         return {
@@ -59,12 +69,11 @@ async def get_video_info(player_idx: int, player_db=Depends(get_player_db), logg
         }
     except RuntimeError as e:
         return {"error": True, "message": str(e)}
-    
 
 def format_ranges(numbers):
     if not numbers:
         return ""
-    
+
     ranges = []
     start = numbers[0]
     end = numbers[0]

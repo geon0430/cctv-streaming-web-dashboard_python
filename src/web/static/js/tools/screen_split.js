@@ -1,3 +1,40 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // 모든 우클릭 이벤트를 막는 코드 추가
+    document.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+    });
+
+    const players = document.querySelectorAll('.player');
+    const contextMenu = document.getElementById('custom-context-menu');
+
+    players.forEach(player => {
+        player.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+            const { clientX: mouseX, clientY: mouseY } = event;
+
+            contextMenu.style.top = `${mouseY}px`;
+            contextMenu.style.left = `${mouseX}px`;
+            contextMenu.style.display = 'block';
+
+            const playerId = player.id;
+
+            document.getElementById('player-info').onclick = () => {
+                alert(`Player Info for ${playerId}`);
+                contextMenu.style.display = 'none';
+            };
+
+            document.getElementById('delete-video').onclick = () => {
+                alert(`Delete video from ${playerId}`);
+                contextMenu.style.display = 'none';
+            };
+        });
+    });
+
+    document.addEventListener('click', () => {
+        contextMenu.style.display = 'none';
+    });
+});
+
 function selectPlayer(playerId) {
     const players = document.querySelectorAll('.player');
     players.forEach(player => player.classList.remove('selected'));
@@ -71,7 +108,7 @@ function updateVideoPlayers(layout) {
             }
         }
     }
-    
+
     Array.from(playersGrid.children).forEach(player => {
         if (parseInt(player.dataset.idx, 10) > rows * columns) {
             player.remove();
@@ -123,11 +160,11 @@ async function callSortVideoPlayerAPI(layout) {
             },
             body: JSON.stringify({ layout }),
         });
-        
+
         if (!response.ok) {
             throw new Error('Failed to update player layout');
         }
-        
+
         const result = await response.json();
         const { active_players, inactive_players } = result;
 

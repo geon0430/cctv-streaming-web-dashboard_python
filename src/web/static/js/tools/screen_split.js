@@ -1,39 +1,92 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // 모든 우클릭 이벤트를 막는 코드 추가
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/get_layout/');
+        if (!response.ok) {
+            throw new Error('Failed to fetch layout.');
+        }
+        const result = await response.json();
+        const layout = result.layout;
+
+        // Call the function to update the video player layout based on the fetched layout
+        updateVideoPlayers(layout);
+        console.log(`Page has loaded with layout: ${layout}`);
+        
+        // Reconnect to active streams after layout is updated
+        const activeStreams = JSON.parse(localStorage.getItem('activeStreams')) || {};
+        Object.keys(activeStreams).forEach(playerIdx => {
+            const { device } = activeStreams[playerIdx];
+            setTimeout(() => connectWebSocket(playerIdx, device), 0); // delay to ensure elements are ready
+        });
+
+    } catch (error) {
+        console.error('Error fetching layout:', error);
+    }
+
     document.addEventListener('contextmenu', (event) => {
+        console.log('Right-click event was blocked.');
         event.preventDefault();
     });
 
-    const players = document.querySelectorAll('.player');
     const contextMenu = document.getElementById('custom-context-menu');
 
+    const players = document.querySelectorAll('.player');
     players.forEach(player => {
-        player.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-            const { clientX: mouseX, clientY: mouseY } = event;
-
-            contextMenu.style.top = `${mouseY}px`;
-            contextMenu.style.left = `${mouseX}px`;
-            contextMenu.style.display = 'block';
-
-            const playerId = player.id;
-
-            document.getElementById('player-info').onclick = () => {
-                alert(`Player Info for ${playerId}`);
-                contextMenu.style.display = 'none';
-            };
-
-            document.getElementById('delete-video').onclick = () => {
-                alert(`Delete video from ${playerId}`);
-                contextMenu.style.display = 'none';
-            };
-        });
+        attachContextMenuEvent(player);
     });
 
     document.addEventListener('click', () => {
         contextMenu.style.display = 'none';
+        console.log('Custom context menu was closed by page click.');
+    });
+
+    console.log('Page has loaded.');
+
+    // Monitor split icon click event
+    const monitorSplitIcon = document.getElementById('monitor-split-icon');
+    const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
+
+    monitorSplitIcon.addEventListener('click', (event) => {
+        toggleDropdown(monitorSplitDropdown);
+        event.stopPropagation();
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!monitorSplitDropdown.contains(event.target) && !monitorSplitIcon.contains(event.target)) {
+            monitorSplitDropdown.style.display = 'none';
+        }
     });
 });
+
+function attachContextMenuEvent(player) {
+    const contextMenu = document.getElementById('custom-context-menu');
+    
+    player.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+        console.log(`Right-click detected on player ${player.id}.`);
+
+        const { clientX: mouseX, clientY: mouseY } = event;
+        console.log(`Mouse position - X: ${mouseX}, Y: ${mouseY}`);
+
+        contextMenu.style.top = `${mouseY}px`;
+        contextMenu.style.left = `${mouseX}px`;
+        contextMenu.style.display = 'block';
+        console.log('Custom context menu is displayed.');
+
+        const playerId = player.id;
+
+        document.getElementById('player-info').onclick = () => {
+            alert(`Player Info for ${playerId}`);
+            contextMenu.style.display = 'none';
+            console.log('Player info was clicked.');
+        };
+
+        document.getElementById('delete-video').onclick = () => {
+            alert(`Delete video from ${playerId}`);
+            contextMenu.style.display = 'none';
+            console.log('Delete video was clicked.');
+        };
+    });
+}
 
 function selectPlayer(playerId) {
     const players = document.querySelectorAll('.player');
@@ -42,6 +95,7 @@ function selectPlayer(playerId) {
     if (selectedPlayer) {
         selectedPlayer.classList.add('selected');
     }
+    console.log(`Player ${playerId} was selected.`);
 }
 
 function updateVideoPlayers(layout) {
@@ -106,6 +160,8 @@ function updateVideoPlayers(layout) {
                 activeStreams[i] = currentStreams[i];
                 connectWebSocket(i, currentStreams[i].device);
             }
+
+            attachContextMenuEvent(player);
         }
     }
 
@@ -117,27 +173,12 @@ function updateVideoPlayers(layout) {
 
     videoPlayersContainer.innerHTML = '';
     videoPlayersContainer.appendChild(playersGrid);
+    console.log('Video player layout has been updated.');
 }
-
-document.addEventListener('DOMContentLoaded', (event) => {
-    selectImage('img1');  
-    const monitorSplitIcon = document.getElementById('monitor-split-icon');
-    const monitorSplitDropdown = document.getElementById('monitor-split-dropdown');
-
-    monitorSplitIcon.addEventListener('click', (event) => {
-        toggleDropdown(monitorSplitDropdown);
-        event.stopPropagation();
-    });
-
-    document.addEventListener('click', (event) => {
-        if (!monitorSplitDropdown.contains(event.target) && !monitorSplitIcon.contains(event.target)) {
-            monitorSplitDropdown.style.display = 'none';
-        }
-    });
-});
 
 function toggleDropdown(dropdown) {
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    console.log(`Dropdown menu is now ${dropdown.style.display === 'block' ? 'open' : 'closed'}.`);
 }
 
 function selectImage(imageId) {
@@ -149,6 +190,7 @@ function selectImage(imageId) {
     } else {
         console.error('initializeVideoInfoState function is not defined.');
     }
+    console.log(`Image ${imageId} was selected.`);
 }
 
 async function callSortVideoPlayerAPI(layout) {
@@ -162,7 +204,7 @@ async function callSortVideoPlayerAPI(layout) {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to update player layout');
+            throw new Error('Failed to update player layout.');
         }
 
         const result = await response.json();
@@ -173,6 +215,7 @@ async function callSortVideoPlayerAPI(layout) {
         }
 
         updateVideoPlayers(layout);
+        console.log('Player layout was successfully updated.');
     } catch (error) {
         console.error('Error:', error);
     }
@@ -188,7 +231,7 @@ async function deletePlayer(playerId) {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to delete player');
+            throw new Error('Failed to delete player.');
         }
 
         const result = await response.json();
@@ -207,7 +250,7 @@ async function drop(event) {
     const data = event.dataTransfer.getData('application/json');
     const device = JSON.parse(data);
     const playerIdx = event.currentTarget.dataset.idx;
-    console.log('Dropped device:', device, 'on player:', playerIdx);
+    console.log('Device dropped:', device, 'on player:', playerIdx);
     await postDeviceToPlayer(device, playerIdx);
 }
 
@@ -225,7 +268,7 @@ async function postDeviceToPlayer(device, playerIdx) {
             console.error(`Failed to assign device: ${errorData.detail}`);
             return;
         }
-        console.log(`Device ${device.idx} successfully assigned to player ${playerIdx}`);
+        console.log(`Device ${device.idx} was successfully assigned to player ${playerIdx}.`);
     } catch (error) {
         console.error('Error during POST request:', error);
     }
@@ -235,9 +278,10 @@ async function fetchChannelList() {
     try {
         const response = await fetch('/channel_list/');
         if (!response.ok) {
-            throw new Error('Failed to fetch channel list');
+            throw new Error('Failed to fetch channel list.');
         }
         const channels = await response.json();
+        console.log('Channel list was successfully loaded.');
     } catch (error) {
         console.error('Error fetching channel list:', error);
     }

@@ -1,8 +1,10 @@
 import asyncio
 import logging
-from typing import Dict, List
+from typing import Dict
 from fastapi import WebSocket
+from starlette.websockets import WebSocketState  # WebSocketState 가져오기
 from videoplayer import FFmpegRead
+
 
 class VideoStreamer:
     active_streams: Dict[int, "VideoStreamer"] = {}
@@ -18,7 +20,7 @@ class VideoStreamer:
     async def video_start(cls, websocket: WebSocket, channel_info: Dict, logger: logging.Logger):
         player_idx = channel_info['player_idx']
         if player_idx in cls.active_streams:
-            await cls.active_streams[player_idx].stop_stream()
+            await cls.stop_stream(player_idx, logger)
 
         streamer = cls(websocket, channel_info, logger)
         cls.active_streams[player_idx] = streamer
@@ -31,7 +33,8 @@ class VideoStreamer:
             streamer.stop_event.set()
             if streamer.send_task:
                 streamer.send_task.cancel()
-            await streamer.websocket.close()
+            if streamer.websocket.client_state != WebSocketState.DISCONNECTED:
+                await streamer.websocket.close()
             del cls.active_streams[player_idx]
             logger.info(f'VideoStreamer | ffmpeg stop {player_idx}')
 
@@ -45,7 +48,7 @@ class VideoStreamer:
         width = self.channel_info['width']
         gpu = 0
 
-        await FFmpegRead(
+        process = await FFmpegRead(
             url,
             height,
             width,
@@ -54,3 +57,4 @@ class VideoStreamer:
             self.stop_event,
             self.logger,
         )
+        return process

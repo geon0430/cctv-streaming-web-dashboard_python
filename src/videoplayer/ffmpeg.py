@@ -54,10 +54,8 @@ async def FFmpegRead(url: str, height: int, width: int, gpu: int, websocket: Web
         except Exception as e:
             logger.error(f"Error in FFmpegRead: {e}")
         finally:
-            if process and process.returncode is None:
-                process.stdout.close()
-                await process.terminate()
-                await process.wait()
-                logger.info("FFmpegRead | FFmpeg read process has completed.")
-        await asyncio.sleep(5)
-        logger.info("FFmpegRead | Restarting FFmpeg read process")
+            if process.returncode is None:
+                process.kill()
+                await process.communicate()
+            await asyncio.sleep(5)
+            logger.info("FFmpegRead | Restarting FFmpeg read process")

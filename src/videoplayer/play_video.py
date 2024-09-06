@@ -40,7 +40,6 @@ async def play_video(websocket: WebSocket, player_idx: int, player_db, logger: l
                         device = message['device']
                         logger.info(f"POST Router | video play WebSocket | Assigning device {device['idx']} to player {player_idx}")
 
-                        # Save the device information in the database
                         if not existing_entry:
                             existing_entry = VideoPlayerStruct(
                                 channel_id=player_idx,

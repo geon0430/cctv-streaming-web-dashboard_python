@@ -2,9 +2,8 @@ import asyncio
 import logging
 from typing import Dict
 from fastapi import WebSocket
-from starlette.websockets import WebSocketState  # WebSocketState 가져오기
+from starlette.websockets import WebSocketState  
 from videoplayer import FFmpegRead
-
 
 class VideoStreamer:
     active_streams: Dict[int, "VideoStreamer"] = {}

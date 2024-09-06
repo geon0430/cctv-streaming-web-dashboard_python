@@ -7,6 +7,7 @@ async function fetchPlayerState() {
             throw new Error('Failed to fetch player state.');
         }
         const players = await response.json();
+
         return players.filter(player => player.onvif_result_address !== null &&
                                         player.height !== 0 &&
                                         player.width !== 0 &&
@@ -27,11 +28,27 @@ async function connectWebSocket(playerIdx, device) {
         return;
     }
 
+    const container = videoElement.parentNode;
+
+    const existingCanvas = container.querySelector('canvas');
+    if (existingCanvas) {
+        existingCanvas.remove();
+    }
+
     const canvasElement = document.createElement('canvas');
     const ctx = canvasElement.getContext('2d');
     videoElement.style.display = 'none';
 
-    const container = videoElement.parentNode;
+    const updateCanvasSize = () => {
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+        canvasElement.width = containerWidth;
+        canvasElement.height = containerHeight;
+    };
+
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);  
+
     container.appendChild(canvasElement);
 
     if (activeStreams[playerIdx] && activeStreams[playerIdx].ws) {
@@ -39,7 +56,7 @@ async function connectWebSocket(playerIdx, device) {
             const existingWs = activeStreams[playerIdx].ws;
             existingWs.onclose = function() {
                 console.log('Existing WebSocket closed');
-                activeStreams[playerIdx] = null; // Clear the existing WebSocket reference
+                activeStreams[playerIdx] = null; 
             };
             existingWs.close();
         } catch (error) {
@@ -59,9 +76,8 @@ async function connectWebSocket(playerIdx, device) {
 
         const img = new Image();
         img.onload = () => {
-            canvasElement.width = img.width;
-            canvasElement.height = img.height;
-            ctx.drawImage(img, 0, 0, img.width, img.height);
+            updateCanvasSize();
+            ctx.drawImage(img, 0, 0, canvasElement.width, canvasElement.height);
             URL.revokeObjectURL(url);
         };
         img.src = url;
@@ -91,6 +107,7 @@ async function connectWebSocket(playerIdx, device) {
     activeStreams[playerIdx] = { ws, device };
     localStorage.setItem('activeStreams', JSON.stringify(activeStreams));
 }
+
 
 function itemClicked(event, device) {
     const items = document.querySelectorAll('#file-list li');
@@ -147,11 +164,61 @@ async function postDeviceToPlayer(device, playerIdx) {
     }
 }
 
-function removeChannel() {
-    console.log('Remove channel functionality not yet implemented.');
+document.getElementById('remove-channel').addEventListener('click', function () {
+    const selectedPlayerIdx = getSelectedPlayerIdx();
+
+    console.log(`Player ${selectedPlayerIdx} successfully deleted`);
+    if (selectedPlayerIdx !== null) {
+        removeChannel(selectedPlayerIdx);
+    } else {
+        console.error('No player selected for deletion.');
+    }
+});
+
+function getSelectedPlayerIdx() {
+    const selectedItem = document.querySelector('#file-list li.selected');
+    if (selectedItem) {
+        return selectedItem.dataset.idx; 
+    }
+    return null;
 }
 
-document.getElementById('remove-channel').addEventListener('click', removeChannel);
+async function removeChannel(playerIdx) {
+    try {
+        const response = await fetch(`/delete_player/${playerIdx}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error(`Failed to delete player: ${errorData.detail}`);
+            return;
+        }
+
+        console.log(`Player ${playerIdx} successfully deleted`);
+
+        if (activeStreams[playerIdx] && activeStreams[playerIdx].ws) {
+            const ws = activeStreams[playerIdx].ws;
+            ws.close();
+            delete activeStreams[playerIdx]; 
+            localStorage.setItem('activeStreams', JSON.stringify(activeStreams));
+        }
+
+        const videoElement = document.getElementById(`video${playerIdx}`);
+        if (videoElement) {
+            videoElement.remove();
+        }
+
+    } catch (error) {
+        console.error('Error deleting video:', error);
+    }
+}
+
+
+
 document.getElementById('search-bar').addEventListener('input', function () {
     const searchTerm = this.value.toLowerCase();
     const items = document.querySelectorAll('#file-list li, #file-list .group-title');
@@ -169,11 +236,15 @@ document.getElementById('search-bar').addEventListener('input', function () {
     });
 });
 
-window.fetchChannelList = fetchChannelList;
 window.onload = async () => {
     await fetchChannelList();
 
     const players = await fetchPlayerState();
+    if (players.length === 0) {
+        console.log('No valid players found with onvif_result_address. WebSocket connections will not be made.');
+        return; 
+    }
+
     for (const player of players) {
         if (player.onvif_result_address && player.height && player.width && player.fps && player.codec) {
             const playerIdx = player.channel_id;
@@ -185,7 +256,7 @@ window.onload = async () => {
                 codec: player.codec,
                 fps: player.fps
             };
-            setTimeout(() => connectWebSocket(playerIdx, device), 0); // delay to ensure elements are ready
+            setTimeout(() => connectWebSocket(playerIdx, device), 0); 
         }
     }
 };

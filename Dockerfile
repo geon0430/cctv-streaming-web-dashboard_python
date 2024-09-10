@@ -17,6 +17,7 @@ RUN apt-get update && apt-get -y upgrade && \
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
 
 RUN ln -s $(which python3) /usr/bin/python
+RUN apt-get remove -y python3-cryptography
 RUN bash /webrtc_python/setting-scripts/install_ffmpeg.sh
 RUN bash /webrtc_python/setting-scripts/install_dependencies.sh
 RUN bash /webrtc_python/setting-scripts/install_pip.sh

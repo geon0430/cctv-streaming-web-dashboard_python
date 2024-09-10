@@ -2,8 +2,8 @@
 
 port_num="1"
 CONTAINER_NAME="geon_webrtc_python"
-IMAGE_NAME="hub.inbic.duckdns.org/ai-dev/python_object_detection_server"
-TAG="0.1"
+IMAGE_NAME="webrtc_python"
+TAG="0.2"
 
 webrtc_python_path=$(pwd)
 

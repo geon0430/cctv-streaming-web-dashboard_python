@@ -1,4 +1,6 @@
-#!/bin/bash
+i#!/bin/bash
+
+apt-get remove -y python3-cryptography
 
 pip install pandas
 pip install loguru
@@ -9,7 +11,8 @@ pip install fastapi_utils
 pip install uvicorn
 pip install sqlmodel
 pip install shortuuid
-pip install pycrypto
 pip install onvif2-zeep
 pip install onvif-zeep zeep
 pip install aiortc
+pip install pycryptodome
+pip install opencv-python

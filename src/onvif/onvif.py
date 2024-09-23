@@ -4,7 +4,7 @@ sys.path.append("../../")
 
 def get_onvif_rtsp_address_list(ip, port=80, id=None, passwd=None):
     try:
-        mycam = ONVIFCamera(ip, port, id, passwd, wsdl_dir='/python_object_detection_server/src/pipeline/rtsp/wsdl', adjust_time=True)
+        mycam = ONVIFCamera(ip, port, id, passwd, wsdl_dir='/webrtc_python/src/onvif/wsdl', adjust_time=True)
         media_service2 = mycam.create_media2_service()
         profiles = media_service2.GetProfiles()
         configurations = media_service2.GetVideoEncoderConfigurations()
@@ -45,32 +45,6 @@ def get_onvif_rtsp_address_list(ip, port=80, id=None, passwd=None):
             raise ValueError("Authentication failed: Invalid ID or password")
         else:
             raise ValueError(f"An error occurred: {str(e)}")
-
-
-
-def get_onvif_rtsp_address(ip, port=80, id=None, passwd=None):
-    mycam = ONVIFCamera(ip, port, id, passwd, wsdl_dir='/python_object_detection_server/src/pipeline/rtsp/wsdl', adjust_time=True)
-    media_service = mycam.create_media_service()
-    media_service2 = mycam.create_media2_service()
-    profile = media_service.GetProfiles()[1]
-
-    o = media_service2.create_type('GetStreamUri')
-    o.ProfileToken = profile.token
-    o.Protocol = 'RTSP'
-    uri_response = media_service2.GetStreamUri(o)
-
-    uri = uri_response  
-    rtsp_uri = uri if passwd is None else f'rtsp://{id}:{passwd}@{uri[7:]}'
-
-    result = {
-        'width': profile.VideoEncoderConfiguration.Resolution.Width,
-        'height': profile.VideoEncoderConfiguration.Resolution.Height,
-        'codec': profile.VideoEncoderConfiguration.Encoding.lower(),
-        'fps': profile.VideoEncoderConfiguration.RateControl.FrameRateLimit,
-        'rtsp': rtsp_uri
-    }
-
-    return result
 
 
 # if __name__ == "__main__":

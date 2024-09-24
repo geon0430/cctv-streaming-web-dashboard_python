@@ -18,6 +18,16 @@ class DBManager:
             session.add(device)
             session.commit()
             session.refresh(device)
+            
+    def remove_device(self, device_idx: int) -> bool:
+        with Session(self.engine) as session:
+            instance = session.exec(select(self.struct_type).where(self.struct_type.idx == device_idx)).first()
+
+            if instance:
+                session.delete(instance)
+                session.commit()
+                return True
+            return False
 
     def update_entry(self, entry: SQLModel):
         with Session(self.engine) as session:

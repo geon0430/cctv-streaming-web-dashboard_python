@@ -1,6 +1,4 @@
-i#!/bin/bash
-
-apt-get remove -y python3-cryptography
+#!/bin/bash
 
 pip install pandas
 pip install loguru

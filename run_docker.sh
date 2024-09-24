@@ -3,7 +3,7 @@
 port_num="1"
 CONTAINER_NAME="geon_webrtc_python"
 IMAGE_NAME="webrtc_python"
-TAG="0.2"
+TAG="0.1"
 
 webrtc_python_path=$(pwd)
 

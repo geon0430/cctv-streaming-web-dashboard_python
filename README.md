@@ -7,7 +7,7 @@
 - Capture Functionality: Take snapshots of the video feed directly from the dashboard.
 - Full-Screen View: View individual streams in full-screen mode for better clarity.
 - Screen Splitting: Divide the screen to view multiple feeds simultaneously. The dashboard supports up to 16 split screens.
-- Low-Latency Playback: Streams play smoothly with a delay of only 2 seconds, even in 16-split mode, without frame drops.
+- Low-Latency Playback: Streams play smoothly with a delay of only 2 seconds
 
 ## Technical Overview
 - Streaming Protocols: ONVIF, FFMPEG, FFMPROBE

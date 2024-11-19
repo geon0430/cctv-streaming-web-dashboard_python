@@ -4,6 +4,17 @@
 - 회사 프로젝트를 시작하기 전에 개인 공부 목적으로 개발하여 이후 회사 프로젝트가 시작되면서 개발이 중단되었고, 원본 영상 스트리밍 기능까지 버전 1로 마무리하였다.
 - 현재 다 채널 스트리밍은 불안정하며, AI 모델 기반 이벤트 처리, 디자인 개선 및 기타 기능 구현과 같은 추가 개발이 필요하다.
 
+## Documents
+<a href="https://drive.google.com/drive/folders/1X15xp01TwhPIo8RGjtv203kUQFsOC7Ov?usp=sharing">
+    <img alt="googledrive" src="https://img.shields.io/badge/drive-4285F4.svg?&style=for-the-badge&logo=googledrive&logoColor=white"/>
+</a>
+<a href="https://docs.google.com/presentation/d/1Wv2KExN0OKaopT74u-r_N9sOZxSiCbApAYBa8oFJjmM/edit?usp=sharing">
+    <img alt="Web Interface" src="https://img.shields.io/badge/Web_Interface-FFA500.svg?&style=for-the-badge&logo=googleslides&logoColor=white"/>
+</a>
+<a href="https://docs.google.com/spreadsheets/d/1aZmW5uiR416mbD7YT220Uet3KyaL_Lss/edit?usp=sharing&ouid=102344057613445860363&rtpof=true&sd=true">
+    <img alt="WBS" src="https://img.shields.io/badge/WBS-34A853.svg?&style=for-the-badge&logo=googlesheets&logoColor=white"/>
+</a>
+
   ## 주요 기능
 - 실시간 CCTV 스트리밍: ONVIF 또는 RTSP를 사용하여 CCTV 스트림을 추가하고 웹에서 실시간 영상 확인 가능.
 - 캡처 기능: 대시보드에서 직접 영상의 스냅샷을 캡처.

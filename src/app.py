@@ -8,7 +8,7 @@ from routers import root, post_router, get_router, delete_router, put_router
 
 app = FastAPI()
 
-app.mount("/static/", StaticFiles(directory="/webrtc_python/src/web/static/"), name="static")
+app.mount("/static/", StaticFiles(directory="/cctv-streaming-web-dashboard_python/src/web/static/"), name="static")
 
 app.include_router(root)
 app.include_router(post_router)
@@ -17,7 +17,7 @@ app.include_router(delete_router)
 app.include_router(put_router)
 
 async def startup_event():
-    api_ini_path = "/webrtc_python/src/config.ini"
+    api_ini_path = "/cctv-streaming-web-dashboard_python/src/config.ini"
     api_config = ConfigManager(api_ini_path)
     ini_dict = api_config.get_config_dict()
     logger = setup_logger(ini_dict)

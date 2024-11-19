@@ -4,7 +4,7 @@ sys.path.append("../../")
 
 def get_onvif_rtsp_address_list(ip, port=80, id=None, passwd=None):
     try:
-        mycam = ONVIFCamera(ip, port, id, passwd, wsdl_dir='/webrtc_python/src/onvif/wsdl', adjust_time=True)
+        mycam = ONVIFCamera(ip, port, id, passwd, wsdl_dir='/cctv-streaming-web-dashboard_python/src/onvif/wsdl', adjust_time=True)
         media_service2 = mycam.create_media2_service()
         profiles = media_service2.GetProfiles()
         configurations = media_service2.GetVideoEncoderConfigurations()

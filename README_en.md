@@ -14,7 +14,7 @@
 
 ## Execution
 
-### 1. DOCKER IMAGE build
+### 1. DOCKER IMAGE BUILD
 ```
 bash build_docker.sh
 ```

@@ -1,5 +1,5 @@
 # CCTV-streaming-web-dashboard_python
-- This project is a CCTV Streaming Web Dashboard that enables users to register CCTV streams via ONVIF and RTSP protocols and view live CCTV feeds in real-time directly from the web interface. It was developed as part of a study initiative prior to starting a company project.
+- This project is a CCTV Streaming Web Dashboard that enables users to register CCTV streams via ONVIF and RTSP protocols and view live CCTV feeds in real-time directly from the web interface. It was developed as part of a study initiative prior to starting a company project. Development was discontinued as the company project began, and the project was finalized as version 1 with the functionality of streaming raw video feeds. The code has not been fully stabilized, and further development is required, including the implementation of features such as AI model-based event handling, design improvements, and other enhancements.
 
 
 ## Features

@@ -10,9 +10,7 @@
 - Low-Latency Playback: Streams play smoothly with a delay of only 2 seconds, even in 16-split mode, without frame drops.
 
 ## Technical Overview
-- Streaming Protocols: Supports both ONVIF and RTSP for flexible CCTV integration.
-- Web Technology: Built to ensure smooth video playback with low latency, leveraging efficient backend streaming and frontend rendering mechanisms.
-- Scalability: Handles multiple streams effectively, making it suitable for larger setups with up to 16 feeds.
+- Streaming Protocols: ONVIF, FFMPEG, FFMPROBE
 
 ## Execution
 

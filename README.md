@@ -1,1 +1,35 @@
-# cctv-streaming-web-dashboard_python
+# CCTV-streaming-web-dashboard_python
+- This project is a CCTV Streaming Web Dashboard that enables users to register CCTV streams via ONVIF and RTSP protocols and view live CCTV feeds in real-time directly from the web interface. It was developed as part of a study initiative prior to starting a company project.
+
+
+## Features
+- Live CCTV Streaming: Add CCTV streams using ONVIF or RTSP and monitor live video feeds from the web.
+- Capture Functionality: Take snapshots of the video feed directly from the dashboard.
+- Full-Screen View: View individual streams in full-screen mode for better clarity.
+- Screen Splitting: Divide the screen to view multiple feeds simultaneously. The dashboard supports up to 16 split screens.
+- Low-Latency Playback: Streams play smoothly with a delay of only 2 seconds, even in 16-split mode, without frame drops.
+
+## Technical Overview
+- Streaming Protocols: Supports both ONVIF and RTSP for flexible CCTV integration.
+- Web Technology: Built to ensure smooth video playback with low latency, leveraging efficient backend streaming and frontend rendering mechanisms.
+- Scalability: Handles multiple streams effectively, making it suitable for larger setups with up to 16 feeds.
+
+## Execution
+
+### 1. DOCKER IMAGE build
+```
+bash build_docker.sh
+```
+### 2. DOCKER CONTAINER START
+```
+bash build_docker.sh
+```
+### 3. FASTAPI START
+```
+bash src/run_server.sh
+```
+
+|Main Page |Streaming |
+|:--------------:|:--------------:|
+| ![CleanShot 2024-11-19 at 15 56 42@2x](https://github.com/user-attachments/assets/b3777f92-dd17-4e46-87dc-f38da9f014f2) | ![CleanShot 2024-11-19 at 15 57 52@2x](https://github.com/user-attachments/assets/38a159d3-bc45-4b76-9c26-baa078df84a5)
+ |

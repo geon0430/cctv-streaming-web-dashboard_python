@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function attachContextMenuEvent(player) {
     const contextMenu = document.getElementById('custom-context-menu');
-    
+
     player.addEventListener('contextmenu', (event) => {
         event.preventDefault();
         console.log(`Right-click detected on player ${player.id}.`);
@@ -72,21 +72,24 @@ function attachContextMenuEvent(player) {
         contextMenu.style.display = 'block';
         console.log('Custom context menu is displayed.');
 
-        const playerId = player.id;
+        const playerId = player.id.replace("player", ""); 
 
         document.getElementById('player-info').onclick = () => {
-            alert(`Player Info for ${playerId}`);
+            alert(`Player Info for player${playerId}`);
             contextMenu.style.display = 'none';
             console.log('Player info was clicked.');
         };
 
-        document.getElementById('delete-video').onclick = () => {
-            alert(`Delete video from ${playerId}`);
+        document.getElementById('delete-video').onclick = async () => {
+            console.log(`Delete video was clicked for player${playerId}.`);
+
+            await removeChannel(playerId);
+
             contextMenu.style.display = 'none';
-            console.log('Delete video was clicked.');
         };
     });
 }
+
 
 function selectPlayer(playerId) {
     const players = document.querySelectorAll('.player');

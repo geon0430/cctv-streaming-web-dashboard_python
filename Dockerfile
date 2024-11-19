@@ -6,9 +6,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
-COPY . /webrtc_python/
+COPY . /cctv-streaming-web-dashboard_python/
 
-RUN bash /webrtc_python/setting-scripts/install_dependencies.sh
-RUN bash /webrtc_python/setting-scripts/install_ffmpeg.sh
-RUN bash /webrtc_python/setting-scripts/install_pip.sh
-RUN bash /webrtc_python/setting-scripts/install_OpenCV.sh
+RUN bash /cctv-streaming-web-dashboard_python/setting-scripts/install_dependencies.sh
+RUN bash /cctv-streaming-web-dashboard_python/setting-scripts/install_ffmpeg.sh
+RUN bash /cctv-streaming-web-dashboard_python/setting-scripts/install_pip.sh
+RUN bash /cctv-streaming-web-dashboard_python/setting-scripts/install_OpenCV.sh

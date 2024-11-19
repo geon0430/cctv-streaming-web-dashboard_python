@@ -32,6 +32,7 @@ async function connectWebSocket(playerIdx, device) {
 
     const existingCanvas = container.querySelector('canvas');
     if (existingCanvas) {
+        window.removeEventListener('resize', updateCanvasSize);
         existingCanvas.remove();
     }
 
@@ -47,7 +48,7 @@ async function connectWebSocket(playerIdx, device) {
     };
 
     updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);  
+    window.addEventListener('resize', updateCanvasSize);
 
     container.appendChild(canvasElement);
 
@@ -69,7 +70,7 @@ async function connectWebSocket(playerIdx, device) {
 
     ws.onmessage = (event) => {
         const buffer = event.data;
-        console.log('Received video frame:', buffer.byteLength);
+        // console.log('Received video frame:', buffer.byteLength);
 
         const blob = new Blob([buffer], { type: 'image/jpeg' });
         const url = URL.createObjectURL(blob);
@@ -108,7 +109,13 @@ async function connectWebSocket(playerIdx, device) {
     localStorage.setItem('activeStreams', JSON.stringify(activeStreams));
 }
 
-
+window.onbeforeunload = () => {
+    Object.values(activeStreams).forEach(({ ws }) => {
+        if (ws) ws.close();
+    });
+    localStorage.clear(); 
+    console.log("All WebSocket connections closed and localStorage cleared.");
+};
 function itemClicked(event, device) {
     const items = document.querySelectorAll('#file-list li');
     items.forEach(item => {
@@ -202,22 +209,31 @@ async function removeChannel(playerIdx) {
 
         if (activeStreams[playerIdx] && activeStreams[playerIdx].ws) {
             const ws = activeStreams[playerIdx].ws;
-            ws.close();
-            delete activeStreams[playerIdx]; 
+            ws.onclose = () => null; 
+            ws.close(); 
+            delete activeStreams[playerIdx];
             localStorage.setItem('activeStreams', JSON.stringify(activeStreams));
         }
 
         const videoElement = document.getElementById(`video${playerIdx}`);
         if (videoElement) {
-            videoElement.remove();
+            const container = videoElement.parentNode;
+
+            const existingCanvas = container.querySelector('canvas');
+            if (existingCanvas) {
+                existingCanvas.remove();
+            }
+
+            videoElement.style.display = 'block';
+            videoElement.src = ""; 
+            videoElement.style.backgroundColor = "black"; 
         }
 
+        console.log(`Player ${playerIdx} reset to initial state with cleared resources.`);
     } catch (error) {
         console.error('Error deleting video:', error);
     }
 }
-
-
 
 document.getElementById('search-bar').addEventListener('input', function () {
     const searchTerm = this.value.toLowerCase();

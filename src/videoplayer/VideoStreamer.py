@@ -29,14 +29,23 @@ class VideoStreamer:
     async def stop_stream(cls, player_idx: int, logger: logging.Logger):
         if player_idx in cls.active_streams:
             streamer = cls.active_streams[player_idx]
+
+            logger.info(f"VideoStreamer | Stopping stream for player {player_idx}")
             streamer.stop_event.set()
+
             if streamer.send_task:
-                streamer.send_task.cancel()
+                try:
+                    streamer.send_task.cancel()
+                    await streamer.send_task
+                except asyncio.CancelledError:
+                    logger.info(f"VideoStreamer | Task for player {player_idx} was cancelled.")
+
             if streamer.websocket.client_state != WebSocketState.DISCONNECTED:
                 await streamer.websocket.close()
-            del cls.active_streams[player_idx]
-            logger.info(f'VideoStreamer | ffmpeg stop {player_idx}')
 
+            del cls.active_streams[player_idx]
+            logger.info(f"VideoStreamer | Stream for player {player_idx} has been stopped and cleaned up.")
+            
     async def start(self):
         self.send_task = asyncio.create_task(self._ffmpeg_start())
         return self.stop_event, self.send_task

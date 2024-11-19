@@ -1,11 +1,11 @@
 #!/bin/bash
 
 port_num="1"
-CONTAINER_NAME="geon_webrtc_python"
-IMAGE_NAME="webrtc_python"
+CONTAINER_NAME="cctv-streaming-web-dashboard_python"
+IMAGE_NAME="cctv-streaming-web-dashboard_python"
 TAG="0.1"
 
-webrtc_python_path=$(pwd)
+code_path=$(pwd)
 
 docker run \
     --runtime nvidia \
@@ -20,9 +20,9 @@ docker run \
     --name ${CONTAINER_NAME} \
     --privileged \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
-    -v ${webrtc_python_path}:/webrtc_python \
+    -v ${code_path}:/cctv-streaming-web-dashboard_python \
     -e DISPLAY=$DISPLAY \
     --shm-size 20g \
     --restart=always \
-    -w /webrtc_python \
+    -w /cctv-streaming-web-dashboard_python \
     ${IMAGE_NAME}:${TAG}

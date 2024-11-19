@@ -43,19 +43,23 @@ async def FFmpegRead(url: str, height: int, width: int, gpu: int, websocket: Web
                     buffer = buffer[data_size:]
                     
                     frame = np.frombuffer(raw_image, dtype=np.uint8).reshape((height, width, 3))
-
-                    result, encimg = cv2.imencode('.jpg', frame)
+                    img_RGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    result, encimg = cv2.imencode('.jpg', img_RGB)
                     if not result:
                         logger.error("OpenCV encoding error")
                         break
                     
                     await websocket.send_bytes(encimg.tobytes())
                     logger.debug(f"FFmpegRead | Sent {len(encimg.tobytes())} bytes of data.")
+        except asyncio.CancelledError:
+            logger.info("FFmpegRead | Task cancelled. Stopping FFmpeg process.")
         except Exception as e:
             logger.error(f"Error in FFmpegRead: {e}")
         finally:
             if process.returncode is None:
+                logger.info("FFmpegRead | Killing FFmpeg process.")
                 process.kill()
                 await process.communicate()
+            logger.info("FFmpegRead | FFmpeg process has been terminated.")
             await asyncio.sleep(5)
             logger.info("FFmpegRead | Restarting FFmpeg read process")

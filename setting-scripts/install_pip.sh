@@ -1,16 +1,15 @@
 #!/bin/bash
 
-pip install pandas
-pip install loguru
-pip install icecream
-pip install fastapi[all]
-pip install python-multipart
-pip install fastapi_utils
-pip install uvicorn
-pip install sqlmodel
-pip install shortuuid
-pip install onvif2-zeep
-pip install onvif-zeep zeep
-pip install aiortc
-pip install pycryptodome
-pip install opencv-python
+pip install pandas \
+	    loguru \
+	    icecream \
+	    fastapi[all] \
+	    python-multipart \
+	    fastapi_utils \
+	    uvicorn \
+	    sqlmodel \
+	    shortuuid \
+	    onvif2-zeep \
+	    aiortc \
+	    pycryptodome \
+	    opencv-python

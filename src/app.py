@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from sqlmodel import SQLModel, create_engine
 from fastapi.staticfiles import StaticFiles
 import uvicorn
-from utils import setup_logger, DBManager, ConfigManager
+from utils import setup_logger, SQLite, ConfigManager
 from utils.struct import ChannelDBStruct, VideoPlayerStruct
 from routers import root, post_router, get_router, delete_router, put_router
 
@@ -28,8 +28,8 @@ async def startup_event():
     connect_args = {"check_same_thread": False}
     engine = create_engine(database_connection_string, echo=False, connect_args=connect_args)
     
-    db_manager_channel = DBManager(engine, KEY, ChannelDBStruct, logger)
-    db_manager_player = DBManager(engine, KEY, VideoPlayerStruct, logger)
+    db_manager_channel = SQLite(engine, KEY, ChannelDBStruct, logger)
+    db_manager_player = SQLite(engine, KEY, VideoPlayerStruct, logger)
 
     SQLModel.metadata.create_all(engine)
 

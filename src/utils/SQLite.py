@@ -6,7 +6,7 @@ sys.path.append("../")
 from utils.struct import ChannelDBStruct, VideoPlayerStruct
 from utils.aes import AESCipher
 
-class DBManager:
+class SQLite:
     def __init__(self, engine, KEY, struct_type: Type[SQLModel], logger):
         self.engine = engine
         self.cipher = AESCipher(KEY)

@@ -37,7 +37,6 @@ bash build_docker.sh
 ```
 bash src/run_server.sh
 ```
-|Main Page |Streaming |
-|:--------------:|:--------------:|
-| ![CleanShot 2024-11-19 at 15 56 42@2x](https://github.com/user-attachments/assets/b3777f92-dd17-4e46-87dc-f38da9f014f2) | ![CleanShot 2024-11-19 at 15 57 52@2x](https://github.com/user-attachments/assets/38a159d3-bc45-4b76-9c26-baa078df84a5)
- |
+|Main Page |
+|:--------------:|
+| ![CleanShot 2024-11-19 at 15 56 42@2x](https://github.com/user-attachments/assets/b3777f92-dd17-4e46-87dc-f38da9f014f2) 

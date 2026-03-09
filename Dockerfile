@@ -9,6 +9,4 @@ ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 COPY . /cctv-streaming-web-dashboard_python/
 
 RUN bash /cctv-streaming-web-dashboard_python/setting-scripts/install_dependencies.sh
-RUN bash /cctv-streaming-web-dashboard_python/setting-scripts/install_ffmpeg.sh
 RUN bash /cctv-streaming-web-dashboard_python/setting-scripts/install_pip.sh
-RUN bash /cctv-streaming-web-dashboard_python/setting-scripts/install_OpenCV.sh

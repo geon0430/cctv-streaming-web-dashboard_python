@@ -1,6 +1,6 @@
 from .logger import *
 from .parser import *
-from .dbmanager import *
+from .SQLite import *
 from .struct import *
 from .custom_error import *
 from .request import *

@@ -8,8 +8,6 @@ TAG="0.1"
 code_path=$(pwd)
 
 docker run \
-    --runtime nvidia \
-    --gpus all \
     -it \
     -p ${port_num}3888:8888 \
     -p ${port_num}3444:8444 \
